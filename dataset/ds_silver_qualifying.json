@@ -1,0 +1,62 @@
+{
+	"name": "ds_silver_qualifying",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "silver"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "qualifyId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "raceId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "driverId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "constructorId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "number",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "position",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "q1",
+				"type": "varchar"
+			},
+			{
+				"name": "q2",
+				"type": "varchar"
+			},
+			{
+				"name": "q3",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "silver",
+			"table": "qualifying"
+		}
+	}
+}

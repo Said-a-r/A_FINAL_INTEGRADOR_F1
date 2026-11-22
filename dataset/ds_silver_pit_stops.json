@@ -1,0 +1,56 @@
+{
+	"name": "ds_silver_pit_stops",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "silver"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "raceId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "driverId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "stop",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "lap",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "time",
+				"type": "time",
+				"scale": 3
+			},
+			{
+				"name": "duration",
+				"type": "decimal",
+				"precision": 10,
+				"scale": 3
+			},
+			{
+				"name": "milliseconds",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "silver",
+			"table": "pit_stops"
+		}
+	}
+}

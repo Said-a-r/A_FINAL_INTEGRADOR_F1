@@ -1,0 +1,49 @@
+{
+	"name": "ds_silver_lap_times",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "silver"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "raceId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "driverId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "lap",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "position",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "time",
+				"type": "varchar"
+			},
+			{
+				"name": "milliseconds",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "silver",
+			"table": "lap_times"
+		}
+	}
+}
