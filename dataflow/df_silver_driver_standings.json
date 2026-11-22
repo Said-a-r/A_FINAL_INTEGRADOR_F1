@@ -6,11 +6,84 @@
 		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
-			"sources": [],
-			"sinks": [],
-			"transformations": [],
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze_driver_standings",
+						"type": "DatasetReference"
+					},
+					"name": "source1",
+					"description": "."
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_driver_standings",
+						"type": "DatasetReference"
+					},
+					"name": "sink1",
+					"description": "."
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1",
+					"description": "."
+				},
+				{
+					"name": "derivedColumn2",
+					"description": "."
+				}
+			],
 			"scriptLines": [
-				""
+				"source(output(",
+				"          driverStandingsId as string,",
+				"          raceId as string,",
+				"          driverId as string,",
+				"          points as string,",
+				"          position as string,",
+				"          positionText as string,",
+				"          wins as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 derive(driverStandingsId = toInteger(driverStandingsId),",
+				"          raceId = toInteger(raceId),",
+				"          driverId = toInteger(driverId)) ~> derivedColumn1",
+				"derivedColumn1 derive(points = toDecimal(points, 8, 2),",
+				"          position = toShort(position),",
+				"          wins = toShort(wins)) ~> derivedColumn2",
+				"derivedColumn2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          driverStandingsId as integer,",
+				"          raceId as integer,",
+				"          driverId as integer,",
+				"          points as decimal(8,2),",
+				"          position as integer,",
+				"          positionText as string,",
+				"          wins as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          driverStandingsId,",
+				"          raceId,",
+				"          driverId,",
+				"          points,",
+				"          position,",
+				"          positionText,",
+				"          wins",
+				"     )) ~> sink1"
 			]
 		}
 	}

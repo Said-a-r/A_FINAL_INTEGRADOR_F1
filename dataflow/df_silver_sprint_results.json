@@ -6,11 +6,136 @@
 		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
-			"sources": [],
-			"sinks": [],
-			"transformations": [],
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze_sprint_results",
+						"type": "DatasetReference"
+					},
+					"name": "source1",
+					"description": "."
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_sprint_results",
+						"type": "DatasetReference"
+					},
+					"name": "sink1",
+					"description": "."
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1",
+					"description": "."
+				},
+				{
+					"name": "derivedColumn2",
+					"description": "."
+				},
+				{
+					"name": "derivedColumn3",
+					"description": "."
+				}
+			],
 			"scriptLines": [
-				""
+				"source(output(",
+				"          resultId as string,",
+				"          raceId as string,",
+				"          driverId as string,",
+				"          constructorId as string,",
+				"          number as string,",
+				"          grid as string,",
+				"          position as string,",
+				"          positionText as string,",
+				"          positionOrder as string,",
+				"          points as string,",
+				"          laps as string,",
+				"          time as string,",
+				"          milliseconds as string,",
+				"          fastestLap as string,",
+				"          fastestLapTime as string,",
+				"          statusId as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 derive(resultId = toInteger(resultId),",
+				"          raceId = toInteger(raceId),",
+				"          driverId = toInteger(driverId),",
+				"          constructorId = toInteger(constructorId),",
+				"          statusId = toInteger(statusId)) ~> derivedColumn1",
+				"derivedColumn1 derive(number = toShort(number),",
+				"          grid = toShort(grid),",
+				"          position = iif(position == `\\N`, toShort(null()), toShort(position)),",
+				"          positionOrder = toShort(positionOrder),",
+				"          points = toDecimal(points, 8, 2),",
+				"          laps = toShort(laps),",
+				"          fastestLap = iif(fastestLap == `\\N`, toShort(null()), toShort(fastestLap))) ~> derivedColumn2",
+				"derivedColumn2 derive(time = iif(",
+				"          isNull(time) || time == `\\N` || time == '',",
+				"          toString(null()),",
+				"          time",
+				"     ),",
+				"          milliseconds = iif(",
+				"          isNull(milliseconds) || milliseconds == `\\N` || milliseconds == '',",
+				"          toLong(null()),",
+				"          toLong(milliseconds)",
+				"     ),",
+				"          fastestLapTime = iif(",
+				"          isNull(fastestLapTime) || fastestLapTime == `\\N` || fastestLapTime == '',",
+				"          toString(null()),",
+				"          fastestLapTime",
+				"     )) ~> derivedColumn3",
+				"derivedColumn3 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          resultId as integer,",
+				"          raceId as integer,",
+				"          driverId as integer,",
+				"          constructorId as integer,",
+				"          number as integer,",
+				"          grid as integer,",
+				"          position as integer,",
+				"          positionText as string,",
+				"          positionOrder as integer,",
+				"          points as decimal(8,2),",
+				"          laps as integer,",
+				"          time as string,",
+				"          milliseconds as long,",
+				"          fastestLap as integer,",
+				"          fastestLapTime as string,",
+				"          statusId as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          resultId,",
+				"          raceId,",
+				"          driverId,",
+				"          constructorId,",
+				"          number,",
+				"          grid,",
+				"          position,",
+				"          positionText,",
+				"          positionOrder,",
+				"          points,",
+				"          laps,",
+				"          time,",
+				"          milliseconds,",
+				"          fastestLap,",
+				"          fastestLapTime,",
+				"          statusId",
+				"     )) ~> sink1"
 			]
 		}
 	}

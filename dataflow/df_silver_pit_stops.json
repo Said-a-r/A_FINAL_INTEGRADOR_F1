@@ -6,11 +6,96 @@
 		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
-			"sources": [],
-			"sinks": [],
-			"transformations": [],
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze_pit_stops",
+						"type": "DatasetReference"
+					},
+					"name": "source1",
+					"description": "."
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_pit_stops",
+						"type": "DatasetReference"
+					},
+					"name": "sink1",
+					"description": "."
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1",
+					"description": "."
+				},
+				{
+					"name": "derivedColumn2",
+					"description": "."
+				},
+				{
+					"name": "derivedColumn3",
+					"description": "."
+				},
+				{
+					"name": "aggregate1",
+					"description": "."
+				}
+			],
 			"scriptLines": [
-				""
+				"source(output(",
+				"          raceId as string,",
+				"          driverId as string,",
+				"          stop as string,",
+				"          lap as string,",
+				"          time as string,",
+				"          duration as string,",
+				"          milliseconds as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 derive(raceId = toInteger(raceId),",
+				"          driverId = toInteger(driverId)) ~> derivedColumn1",
+				"derivedColumn1 derive(stop = toShort(stop),",
+				"          lap = toShort(lap),",
+				"          milliseconds = toInteger(milliseconds)) ~> derivedColumn2",
+				"derivedColumn2 derive(duration = toDecimal(milliseconds / 1000.0, 10, 3)) ~> derivedColumn3",
+				"derivedColumn3 aggregate(groupBy(raceId,",
+				"          driverId,",
+				"          stop),",
+				"     each(match(name!='raceId'&&name!='driverId'&&name!='stop'), $$ = first($$))) ~> aggregate1",
+				"aggregate1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          raceId as integer,",
+				"          driverId as integer,",
+				"          stop as integer,",
+				"          lap as integer,",
+				"          time as timestamp,",
+				"          duration as decimal(10,3),",
+				"          milliseconds as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          raceId,",
+				"          driverId,",
+				"          stop,",
+				"          lap,",
+				"          time,",
+				"          duration,",
+				"          milliseconds",
+				"     )) ~> sink1"
 			]
 		}
 	}
