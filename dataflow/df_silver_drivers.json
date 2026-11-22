@@ -6,11 +6,110 @@
 		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
-			"sources": [],
-			"sinks": [],
-			"transformations": [],
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze_drivers",
+						"type": "DatasetReference"
+					},
+					"name": "source1",
+					"description": "."
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_drivers",
+						"type": "DatasetReference"
+					},
+					"name": "sink1",
+					"description": "Exportar datos"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1",
+					"description": "."
+				},
+				{
+					"name": "derivedColumn2",
+					"description": "."
+				},
+				{
+					"name": "aggregate1",
+					"description": "."
+				}
+			],
 			"scriptLines": [
-				""
+				"source(output(",
+				"          driverId as string,",
+				"          driverRef as string,",
+				"          number as string,",
+				"          code as string,",
+				"          forename as string,",
+				"          surname as string,",
+				"          dob as string,",
+				"          nationality as string,",
+				"          url as string",
+				"     ),",
+				"     allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 derive(forename = initCap(lower(trim(forename))),",
+				"          surname = initCap(lower(trim(surname))),",
+				"          nationality = initCap(lower(trim(nationality))),",
+				"          number = iif(isNull(number) || !regexMatch(number, `^[0-9]+$`), toString(null()), number),",
+				"          code = iif(isNull(code) || !regexMatch(code, `^[A-Za-z]{3}$`), toString(null()), code)) ~> derivedColumn1",
+				"derivedColumn1 derive(driverId = toInteger(driverId),",
+				"          number = iif(isNull(number), toShort(null()), toShort(number)),",
+				"          dob = iif(regexMatch(dob, `^[0-9]{4}-[0-9]{2}-[0-9]{2}$`), toDate(dob, 'yyyy-MM-dd'),",
+				"                iif(regexMatch(dob, `^[0-9]{4}/[0-9]{2}/[0-9]{2}$`), toDate(dob, 'yyyy/MM/dd'),",
+				"                iif(regexMatch(dob, `^[0-9]{2}/[0-9]{2}/[0-9]{4}$`), toDate(dob, 'dd/MM/yyyy'),",
+				"                iif(regexMatch(dob, `^[0-9]{2}-[A-Za-z]{3}-[0-9]{4}$`), toDate(dob, 'dd-MMM-yyyy'),",
+				"                iif(regexMatch(dob, `^[0-9]{2}-[0-9]{2}-[0-9]{4}$`), toDate(dob, 'MM-dd-yyyy'),",
+				"                toDate(null()))))))) ~> derivedColumn2",
+				"derivedColumn2 aggregate(groupBy(driverId),",
+				"     driverRef = first(driverRef),",
+				"          number = first(number),",
+				"          code = first(code),",
+				"          forename = first(forename),",
+				"          surname = first(surname),",
+				"          dob = first(dob),",
+				"          nationality = first(nationality),",
+				"          url = first(url)) ~> aggregate1",
+				"aggregate1 sink(allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     input(",
+				"          driverId as integer,",
+				"          driverRef as string,",
+				"          number as integer,",
+				"          code as string,",
+				"          forename as string,",
+				"          surname as string,",
+				"          dob as date,",
+				"          nationality as string,",
+				"          url as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          driverId,",
+				"          driverRef,",
+				"          number,",
+				"          code,",
+				"          forename,",
+				"          surname,",
+				"          dob,",
+				"          nationality,",
+				"          url",
+				"     )) ~> sink1"
 			]
 		}
 	}
