@@ -6,11 +6,57 @@
 		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
-			"sources": [],
-			"sinks": [],
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_raw_driver_standings",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze_driver_standings",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [],
 			"scriptLines": [
-				""
+				"source(output(",
+				"          driverStandingsId as string,",
+				"          raceId as string,",
+				"          driverId as string,",
+				"          points as string,",
+				"          position as string,",
+				"          positionText as string,",
+				"          wins as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source1",
+				"source1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          driverStandingsId as string,",
+				"          raceId as string,",
+				"          driverId as string,",
+				"          points as string,",
+				"          position as string,",
+				"          positionText as string,",
+				"          wins as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
 			]
 		}
 	}

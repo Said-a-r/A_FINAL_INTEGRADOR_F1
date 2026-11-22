@@ -6,11 +6,47 @@
 		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
-			"sources": [],
-			"sinks": [],
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_raw_seasons",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze_seasons",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [],
 			"scriptLines": [
-				""
+				"source(output(",
+				"          year as string,",
+				"          url as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source1",
+				"source1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          year as string,",
+				"          url as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
 			]
 		}
 	}

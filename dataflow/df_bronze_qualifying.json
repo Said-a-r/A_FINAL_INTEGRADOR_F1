@@ -6,11 +6,61 @@
 		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
-			"sources": [],
-			"sinks": [],
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_raw_qualifying",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze_qualifying",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [],
 			"scriptLines": [
-				""
+				"source(output(",
+				"          qualifyId as string,",
+				"          raceId as string,",
+				"          driverId as string,",
+				"          constructorId as string,",
+				"          number as string,",
+				"          position as string,",
+				"          q1 as string,",
+				"          q2 as string,",
+				"          q3 as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source1",
+				"source1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          qualifyId as string,",
+				"          raceId as string,",
+				"          driverId as string,",
+				"          constructorId as string,",
+				"          number as string,",
+				"          position as string,",
+				"          q1 as string,",
+				"          q2 as string,",
+				"          q3 as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
 			]
 		}
 	}

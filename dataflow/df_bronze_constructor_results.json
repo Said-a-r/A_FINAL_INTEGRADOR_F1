@@ -6,11 +6,53 @@
 		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
-			"sources": [],
-			"sinks": [],
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_raw_constructor_results",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze_constructor_results",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [],
 			"scriptLines": [
-				""
+				"source(output(",
+				"          constructorResultsId as string,",
+				"          raceId as string,",
+				"          constructorId as string,",
+				"          points as string,",
+				"          status as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source1",
+				"source1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          constructorResultsId as string,",
+				"          raceId as string,",
+				"          constructorId as string,",
+				"          points as string,",
+				"          status as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
 			]
 		}
 	}
