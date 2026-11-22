@@ -1,0 +1,89 @@
+{
+	"name": "df_silver_circuits",
+	"properties": {
+		"folder": {
+			"name": "silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze_circuits",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_circuits",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          circuitId as string,",
+				"          circuitRef as string,",
+				"          name as string,",
+				"          location as string,",
+				"          country as string,",
+				"          lat as string,",
+				"          lng as string,",
+				"          alt as string,",
+				"          url as string",
+				"     ),",
+				"     allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 derive(circuitId = toInteger(circuitId),",
+				"          location = trim(location),",
+				"          country = trim(country),",
+				"          lat = toDecimal(lat, 9, 6),",
+				"          lng = toDecimal(lng, 9, 6),",
+				"          alt = iif(isNull(alt) || alt == '' || upper(alt) == 'N/A', toInteger(null()), toInteger(alt))) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     input(",
+				"          circuitId as integer,",
+				"          circuitRef as string,",
+				"          name as string,",
+				"          location as string,",
+				"          country as string,",
+				"          lat as decimal(9,6),",
+				"          lng as decimal(9,6),",
+				"          alt as integer,",
+				"          url as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          circuitId,",
+				"          circuitRef,",
+				"          name,",
+				"          location,",
+				"          country,",
+				"          lat,",
+				"          lng,",
+				"          alt,",
+				"          url",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
