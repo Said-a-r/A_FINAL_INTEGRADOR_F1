@@ -1,0 +1,48 @@
+{
+	"name": "ds_bronze_driver_standings",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/SQL"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "driverStandingsId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "raceId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "driverId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "points",
+				"type": "nvarchar"
+			},
+			{
+				"name": "position",
+				"type": "nvarchar"
+			},
+			{
+				"name": "positionText",
+				"type": "nvarchar"
+			},
+			{
+				"name": "wins",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "bronze",
+			"table": "driver_standings"
+		}
+	}
+}

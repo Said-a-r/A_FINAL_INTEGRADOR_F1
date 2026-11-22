@@ -1,0 +1,48 @@
+{
+	"name": "ds_bronze_constructor_standings",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/SQL"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "constructorStandingsId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "raceId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "constructorId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "points",
+				"type": "nvarchar"
+			},
+			{
+				"name": "position",
+				"type": "nvarchar"
+			},
+			{
+				"name": "positionText",
+				"type": "nvarchar"
+			},
+			{
+				"name": "wins",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "bronze",
+			"table": "constructor_standings"
+		}
+	}
+}

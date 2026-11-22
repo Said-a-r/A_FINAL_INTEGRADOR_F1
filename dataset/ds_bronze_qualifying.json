@@ -1,0 +1,56 @@
+{
+	"name": "ds_bronze_qualifying",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/SQL"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "qualifyId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "raceId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "driverId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "constructorId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "number",
+				"type": "nvarchar"
+			},
+			{
+				"name": "position",
+				"type": "nvarchar"
+			},
+			{
+				"name": "q1",
+				"type": "nvarchar"
+			},
+			{
+				"name": "q2",
+				"type": "nvarchar"
+			},
+			{
+				"name": "q3",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "bronze",
+			"table": "qualifying"
+		}
+	}
+}
