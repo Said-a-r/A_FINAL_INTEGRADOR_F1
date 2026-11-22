@@ -6,11 +6,81 @@
 		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
-			"sources": [],
-			"sinks": [],
-			"transformations": [],
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze_constructor_results",
+						"type": "DatasetReference"
+					},
+					"name": "source1",
+					"description": "."
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_constructor_results",
+						"type": "DatasetReference"
+					},
+					"name": "sink1",
+					"description": "."
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1",
+					"description": "."
+				},
+				{
+					"name": "derivedColumn2",
+					"description": "."
+				}
+			],
 			"scriptLines": [
-				""
+				"source(output(",
+				"          constructorResultsId as string,",
+				"          raceId as string,",
+				"          constructorId as string,",
+				"          points as string,",
+				"          status as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 derive(constructorResultsId = toInteger(constructorResultsId),",
+				"          raceId = toInteger(raceId),",
+				"          constructorId = toInteger(constructorId)) ~> derivedColumn1",
+				"derivedColumn1 derive(points = toDecimal(points, 8, 2),",
+				"          status = iif(",
+				"          isNull(status) || status == `\\N` || status == '',",
+				"          toString(null()),",
+				"          status",
+				"     )) ~> derivedColumn2",
+				"derivedColumn2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          constructorResultsId as integer,",
+				"          raceId as integer,",
+				"          constructorId as integer,",
+				"          points as decimal(8,2),",
+				"          status as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          constructorResultsId,",
+				"          raceId,",
+				"          constructorId,",
+				"          points,",
+				"          status",
+				"     )) ~> sink1"
 			]
 		}
 	}

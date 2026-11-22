@@ -6,11 +6,105 @@
 		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
-			"sources": [],
-			"sinks": [],
-			"transformations": [],
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze_qualifying",
+						"type": "DatasetReference"
+					},
+					"name": "source1",
+					"description": "."
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_qualifying",
+						"type": "DatasetReference"
+					},
+					"name": "sink1",
+					"description": "."
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1",
+					"description": "."
+				},
+				{
+					"name": "derivedColumn2",
+					"description": "."
+				}
+			],
 			"scriptLines": [
-				""
+				"source(output(",
+				"          qualifyId as string,",
+				"          raceId as string,",
+				"          driverId as string,",
+				"          constructorId as string,",
+				"          number as string,",
+				"          position as string,",
+				"          q1 as string,",
+				"          q2 as string,",
+				"          q3 as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 derive(qualifyId = toInteger(qualifyId),",
+				"          raceId = toInteger(raceId),",
+				"          driverId = toInteger(driverId),",
+				"          constructorId = toInteger(constructorId),",
+				"          number = toShort(number),",
+				"          position = toShort(position)) ~> derivedColumn1",
+				"derivedColumn1 derive(q1 = iif(",
+				"          isNull(q1) || q1 == `\\N` || q1 == '',",
+				"          toString(null()),",
+				"          q1",
+				"     ),",
+				"          q2 = iif(",
+				"          isNull(q2) || q2 == `\\N` || q2 == '',",
+				"          toString(null()),",
+				"          q2",
+				"     ),",
+				"          q3 = iif(",
+				"          isNull(q3) || q3 == `\\N` || q3 == '',",
+				"          toString(null()),",
+				"          q3",
+				"     )) ~> derivedColumn2",
+				"derivedColumn2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          qualifyId as integer,",
+				"          raceId as integer,",
+				"          driverId as integer,",
+				"          constructorId as integer,",
+				"          number as integer,",
+				"          position as integer,",
+				"          q1 as string,",
+				"          q2 as string,",
+				"          q3 as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          qualifyId,",
+				"          raceId,",
+				"          driverId,",
+				"          constructorId,",
+				"          number,",
+				"          position,",
+				"          q1,",
+				"          q2,",
+				"          q3",
+				"     )) ~> sink1"
 			]
 		}
 	}
