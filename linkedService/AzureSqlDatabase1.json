@@ -5,13 +5,13 @@
 		"annotations": [],
 		"type": "AzureSqlDatabase",
 		"typeProperties": {
-			"server": "sql-formula1-choi-integr.database.windows.net",
+			"server": "sql-ucb-formula1-9395401.database.windows.net",
 			"database": "dw_formula_1",
 			"encrypt": "mandatory",
 			"trustServerCertificate": false,
 			"authenticationType": "SQL",
-			"userName": "sqladminf1",
-			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDgxMTM5MkJCLTBGRTctNDNCRC1CODU1LTE3NzNDODYyOTVGNF9hZTBjMGNkNi03ZDNlLTQ5MzEtYjQ5Ni1mNTc0OThkMWU2NjQiDQp9"
+			"userName": "vanessa",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQEI1OTRDOEY1LTEwQTItNEVDQi04OURFLTE5RUU1QzNENjhBNF84MDIzZjhmMy0zM2QwLTQxYzQtYTU1Mi05ZWY1ZDI0YzJjYTUiDQp9"
 		}
 	}
 }
