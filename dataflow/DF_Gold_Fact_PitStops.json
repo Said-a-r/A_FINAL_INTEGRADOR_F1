@@ -1,0 +1,84 @@
+{
+	"name": "DF_Gold_Fact_PitStops",
+	"properties": {
+		"description": "Borrador: validar nombres de columnas contra capa_gold_parte1.sql antes de ejecutar. Source SQL silver.pit_stops; sink Gold.",
+		"folder": {
+			"name": "golden"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_pit_stops",
+						"type": "DatasetReference"
+					},
+					"name": "sourcePitStops"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_Gold_Fact_PitStops",
+						"type": "DatasetReference"
+					},
+					"name": "sinkGoldPitStops"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          race_sk as integer,",
+				"          date_sk as integer,",
+				"          driver_sk as integer,",
+				"          constructor_sk as integer,",
+				"          circuit_sk as integer,",
+				"          stop_number as short,",
+				"          lap_number as short,",
+				"          stop_time as string,",
+				"          duration_ms as integer,",
+				"          duration_seconds as decimal(10,3)",
+				"     ),",
+				"     allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT dr.race_sk, dd.date_sk, dv.driver_sk, dc.constructor_sk, ci.circuit_sk, TRY_CONVERT(smallint,p.[stop]) AS stop_number, TRY_CONVERT(smallint,p.lap) AS lap_number, CONVERT(varchar(20),p.[time]) AS stop_time, TRY_CONVERT(int,p.milliseconds) AS duration_ms, CAST(TRY_CONVERT(decimal(15,3),p.milliseconds)/1000.0 AS decimal(10,3)) AS duration_seconds FROM silver.pit_stops p INNER JOIN gold.dim_race dr ON dr.race_id=TRY_CONVERT(int,p.raceId) INNER JOIN gold.dim_date dd ON dd.full_date=dr.race_date INNER JOIN gold.dim_driver dv ON dv.driver_id=TRY_CONVERT(int,p.driverId) INNER JOIN silver.results sr ON TRY_CONVERT(int,sr.raceId)=TRY_CONVERT(int,p.raceId) AND TRY_CONVERT(int,sr.driverId)=TRY_CONVERT(int,p.driverId) INNER JOIN gold.dim_constructor dc ON dc.constructor_id=TRY_CONVERT(int,sr.constructorId) INNER JOIN silver.races r ON TRY_CONVERT(int,r.raceId)=dr.race_id INNER JOIN gold.dim_circuit ci ON ci.circuit_id=TRY_CONVERT(int,r.circuitId) WHERE TRY_CONVERT(smallint,p.[stop]) IS NOT NULL AND TRY_CONVERT(smallint,p.lap) IS NOT NULL AND TRY_CONVERT(int,p.milliseconds)>0 AND NOT EXISTS (SELECT 1 FROM gold.fact_pit_stops f WHERE f.race_sk=dr.race_sk AND f.driver_sk=dv.driver_sk AND f.stop_number=TRY_CONVERT(smallint,p.[stop]))',",
+				"     format: 'query') ~> sourcePitStops",
+				"sourcePitStops sink(allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     input(",
+				"          pit_stop_sk as long,",
+				"          race_sk as integer,",
+				"          date_sk as integer,",
+				"          driver_sk as integer,",
+				"          constructor_sk as integer,",
+				"          circuit_sk as integer,",
+				"          stop_number as integer,",
+				"          lap_number as integer,",
+				"          duration_ms as integer,",
+				"          duration_sec as decimal(8,3),",
+				"          {_loaded_at} as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          race_sk,",
+				"          date_sk,",
+				"          driver_sk,",
+				"          constructor_sk,",
+				"          circuit_sk,",
+				"          stop_number,",
+				"          lap_number,",
+				"          duration_ms,",
+				"          duration_sec = duration_seconds",
+				"     )) ~> sinkGoldPitStops"
+			]
+		}
+	}
+}

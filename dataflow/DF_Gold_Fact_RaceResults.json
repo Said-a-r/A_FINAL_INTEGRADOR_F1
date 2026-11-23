@@ -1,0 +1,116 @@
+{
+	"name": "DF_Gold_Fact_RaceResults",
+	"properties": {
+		"description": "Carga resultados de Silver a Gold usando claves sustitutas de las 6 dimensiones. Ejecutar después de cargar dimensiones. Requiere DS_Silver_Results y DS_Gold_Fact_RaceResults.",
+		"folder": {
+			"name": "golden"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_results",
+						"type": "DatasetReference"
+					},
+					"name": "sourceRaceResults"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_Gold_Fact_RaceResults",
+						"type": "DatasetReference"
+					},
+					"name": "sinkGoldRaceResults"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          result_id as integer,",
+				"          race_sk as integer,",
+				"          date_sk as integer,",
+				"          driver_sk as integer,",
+				"          constructor_sk as integer,",
+				"          circuit_sk as integer,",
+				"          status_sk as integer,",
+				"          grid_position as short,",
+				"          final_position as short,",
+				"          position_order as short,",
+				"          points as decimal(6,2),",
+				"          laps_completed as short,",
+				"          race_time_ms as long,",
+				"          fastest_lap_ms as integer,",
+				"          fastest_lap_speed_kph as decimal(6,3),",
+				"          is_win as short,",
+				"          is_podium as short,",
+				"          is_dnf as short,",
+				"          positions_gained as short,",
+				"          driver_age_at_race as decimal(4,1)",
+				"     ),",
+				"     allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT  TRY_CONVERT(int, s.resultId) AS result_id,  dr.race_sk, dd.date_sk, dv.driver_sk, dc.constructor_sk, ci.circuit_sk, ds.status_sk,  TRY_CONVERT(smallint, s.grid) AS grid_position,  TRY_CONVERT(smallint, NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(30), s.position))), \\'\\\\N\\'), \\'\\')) AS final_position,  TRY_CONVERT(smallint, s.positionOrder) AS position_order,  TRY_CONVERT(decimal(6,2), s.points) AS points,  TRY_CONVERT(smallint, s.laps) AS laps_completed,  TRY_CONVERT(bigint, NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(50), s.milliseconds))), \\'\\\\N\\'), \\'\\')) AS race_time_ms,  CASE WHEN TRY_CONVERT(time(3), CONCAT(\\'00:\\', NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(50), s.fastestLapTime))), \\'\\\\N\\'), \\'\\'))) IS NOT NULL  THEN DATEDIFF(millisecond, CAST(\\'00:00:00.000\\' AS time(3)), TRY_CONVERT(time(3), CONCAT(\\'00:\\', NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(50), s.fastestLapTime))), \\'\\\\N\\'), \\'\\')))) END AS fastest_lap_ms,  TRY_CONVERT(decimal(6,3), NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(50), s.fastestLapSpeed))), \\'\\\\N\\'), \\'\\')) AS fastest_lap_speed_kph,  CAST(CASE WHEN TRY_CONVERT(int, s.positionOrder) = 1 THEN 1 ELSE 0 END AS tinyint) AS is_win,  CAST(CASE WHEN TRY_CONVERT(int, s.positionOrder) BETWEEN 1 AND 3 THEN 1 ELSE 0 END AS tinyint) AS is_podium,  CAST(CASE WHEN ds.is_finished_flag = 1 THEN 0 ELSE 1 END AS tinyint) AS is_dnf,  CASE WHEN TRY_CONVERT(smallint, s.grid) > 0 AND TRY_CONVERT(smallint, s.positionOrder) IS NOT NULL THEN CAST(TRY_CONVERT(smallint, s.grid) - TRY_CONVERT(smallint, s.positionOrder) AS smallint) END AS positions_gained,  CASE WHEN dv.dob IS NOT NULL AND dr.race_date >= dv.dob THEN CAST(DATEDIFF(day, dv.dob, dr.race_date) / 365.2425 AS decimal(4,1)) END AS driver_age_at_race FROM silver.results s INNER JOIN gold.dim_race dr ON dr.race_id = TRY_CONVERT(int, s.raceId) INNER JOIN gold.dim_date dd ON dd.full_date = dr.race_date INNER JOIN gold.dim_driver dv ON dv.driver_id = TRY_CONVERT(int, s.driverId) INNER JOIN gold.dim_constructor dc ON dc.constructor_id = TRY_CONVERT(int, s.constructorId) INNER JOIN silver.races r ON TRY_CONVERT(int, r.raceId) = dr.race_id INNER JOIN gold.dim_circuit ci ON ci.circuit_id = TRY_CONVERT(int, r.circuitId) INNER JOIN gold.dim_status ds ON ds.status_id = TRY_CONVERT(int, s.statusId) WHERE TRY_CONVERT(int, s.resultId) IS NOT NULL  AND TRY_CONVERT(smallint, s.grid) IS NOT NULL  AND TRY_CONVERT(smallint, s.positionOrder) IS NOT NULL  AND TRY_CONVERT(decimal(6,2), s.points) >= 0  AND TRY_CONVERT(smallint, s.laps) IS NOT NULL  AND NOT EXISTS (SELECT 1 FROM gold.fact_race_results f WHERE f.result_id = TRY_CONVERT(int, s.resultId))',",
+				"     format: 'query') ~> sourceRaceResults",
+				"sourceRaceResults sink(allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     input(",
+				"          result_sk as long,",
+				"          result_id as integer,",
+				"          race_sk as integer,",
+				"          date_sk as integer,",
+				"          driver_sk as integer,",
+				"          constructor_sk as integer,",
+				"          circuit_sk as integer,",
+				"          status_sk as integer,",
+				"          grid_position as integer,",
+				"          final_position as integer,",
+				"          position_order as integer,",
+				"          points as decimal(6,2),",
+				"          laps_completed as integer,",
+				"          race_time_ms as long,",
+				"          fastest_lap_ms as integer,",
+				"          fastest_lap_speed_kph as decimal(6,3),",
+				"          is_win as integer,",
+				"          is_podium as integer,",
+				"          is_dnf as integer,",
+				"          positions_gained as integer,",
+				"          driver_age_at_race as decimal(4,1),",
+				"          {_loaded_at} as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          result_id,",
+				"          race_sk,",
+				"          date_sk,",
+				"          driver_sk,",
+				"          constructor_sk,",
+				"          circuit_sk,",
+				"          status_sk,",
+				"          grid_position,",
+				"          final_position,",
+				"          position_order,",
+				"          points,",
+				"          laps_completed,",
+				"          race_time_ms,",
+				"          fastest_lap_ms,",
+				"          fastest_lap_speed_kph,",
+				"          is_win,",
+				"          is_podium,",
+				"          is_dnf,",
+				"          positions_gained,",
+				"          driver_age_at_race",
+				"     )) ~> sinkGoldRaceResults"
+			]
+		}
+	}
+}

@@ -1,0 +1,107 @@
+{
+	"name": "DF_Gold_Fact_SprintResults",
+	"properties": {
+		"description": "Silver sprint_results a Gold. Requiere dimensiones Gold cargadas. SQL source y sink con mapeo explicito; no inserta IDENTITY ni _loaded_at.",
+		"folder": {
+			"name": "golden"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_sprint_results",
+						"type": "DatasetReference"
+					},
+					"name": "sourceSprintResults"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_Gold_Fact_SprintResults",
+						"type": "DatasetReference"
+					},
+					"name": "sinkGoldSprintResults"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          sprint_result_id as integer,",
+				"          race_sk as integer,",
+				"          date_sk as integer,",
+				"          driver_sk as integer,",
+				"          constructor_sk as integer,",
+				"          circuit_sk as integer,",
+				"          status_sk as integer,",
+				"          grid_position as short,",
+				"          final_position as short,",
+				"          position_order as short,",
+				"          points as decimal(6,2),",
+				"          laps_completed as short,",
+				"          sprint_time_ms as long,",
+				"          fastest_lap_ms as integer,",
+				"          is_sprint_win as short,",
+				"          is_dnf as short,",
+				"          positions_gained as short",
+				"     ),",
+				"     allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT TRY_CONVERT(int,s.resultId) AS sprint_result_id, dr.race_sk, dd.date_sk, dv.driver_sk, dc.constructor_sk, ci.circuit_sk, ds.status_sk, TRY_CONVERT(smallint,s.grid) AS grid_position, TRY_CONVERT(smallint,NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(30),s.position))), \\'\\\\N\\'), \\'\\')) AS final_position, TRY_CONVERT(smallint,s.positionOrder) AS position_order, TRY_CONVERT(decimal(6,2),s.points) AS points, TRY_CONVERT(smallint,s.laps) AS laps_completed, TRY_CONVERT(bigint,NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(50),s.milliseconds))), \\'\\\\N\\'), \\'\\')) AS sprint_time_ms, CASE WHEN TRY_CONVERT(time(3), CONCAT(\\'00:\\', NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(50),s.fastestLapTime))), \\'\\\\N\\'), \\'\\'))) IS NOT NULL THEN DATEDIFF(millisecond,CAST(\\'00:00:00.000\\' AS time(3)),TRY_CONVERT(time(3),CONCAT(\\'00:\\',NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(50),s.fastestLapTime))), \\'\\\\N\\'), \\'\\')))) END AS fastest_lap_ms, CAST(CASE WHEN TRY_CONVERT(int,s.positionOrder)=1 THEN 1 ELSE 0 END AS tinyint) AS is_sprint_win, CAST(CASE WHEN ds.is_finished_flag=1 THEN 0 ELSE 1 END AS tinyint) AS is_dnf, CASE WHEN TRY_CONVERT(smallint,s.grid)>0 THEN CAST(TRY_CONVERT(smallint,s.grid)-TRY_CONVERT(smallint,s.positionOrder) AS smallint) END AS positions_gained FROM silver.sprint_results s INNER JOIN gold.dim_race dr ON dr.race_id=TRY_CONVERT(int,s.raceId) INNER JOIN gold.dim_date dd ON dd.full_date=dr.race_date INNER JOIN gold.dim_driver dv ON dv.driver_id=TRY_CONVERT(int,s.driverId) INNER JOIN gold.dim_constructor dc ON dc.constructor_id=TRY_CONVERT(int,s.constructorId) INNER JOIN silver.races r ON TRY_CONVERT(int,r.raceId)=dr.race_id INNER JOIN gold.dim_circuit ci ON ci.circuit_id=TRY_CONVERT(int,r.circuitId) INNER JOIN gold.dim_status ds ON ds.status_id=TRY_CONVERT(int,s.statusId) WHERE TRY_CONVERT(int,s.resultId) IS NOT NULL AND TRY_CONVERT(smallint,s.grid) IS NOT NULL AND TRY_CONVERT(smallint,s.positionOrder) IS NOT NULL AND TRY_CONVERT(decimal(6,2),s.points)>=0 AND TRY_CONVERT(smallint,s.laps) IS NOT NULL AND NOT EXISTS (SELECT 1 FROM gold.fact_sprint_results f WHERE f.sprint_result_id=TRY_CONVERT(int,s.resultId))',",
+				"     format: 'query') ~> sourceSprintResults",
+				"sourceSprintResults sink(allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     input(",
+				"          sprint_result_sk as long,",
+				"          sprint_result_id as integer,",
+				"          race_sk as integer,",
+				"          date_sk as integer,",
+				"          driver_sk as integer,",
+				"          constructor_sk as integer,",
+				"          circuit_sk as integer,",
+				"          status_sk as integer,",
+				"          grid_position as integer,",
+				"          final_position as integer,",
+				"          position_order as integer,",
+				"          points as decimal(6,2),",
+				"          laps_completed as integer,",
+				"          sprint_time_ms as long,",
+				"          fastest_lap_ms as integer,",
+				"          is_sprint_win as integer,",
+				"          is_dnf as integer,",
+				"          positions_gained as integer,",
+				"          {_loaded_at} as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          sprint_result_id,",
+				"          race_sk,",
+				"          date_sk,",
+				"          driver_sk,",
+				"          constructor_sk,",
+				"          circuit_sk,",
+				"          status_sk,",
+				"          grid_position,",
+				"          final_position,",
+				"          position_order,",
+				"          points,",
+				"          laps_completed,",
+				"          sprint_time_ms,",
+				"          fastest_lap_ms,",
+				"          is_sprint_win,",
+				"          is_dnf,",
+				"          positions_gained",
+				"     )) ~> sinkGoldSprintResults"
+			]
+		}
+	}
+}

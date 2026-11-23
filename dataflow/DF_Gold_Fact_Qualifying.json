@@ -1,0 +1,101 @@
+{
+	"name": "DF_Gold_Fact_Qualifying",
+	"properties": {
+		"description": "Mapping Data Flow para gold.fact_qualifying; revisar esquema y datasets antes de ejecutar.",
+		"folder": {
+			"name": "golden"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_qualifying",
+						"type": "DatasetReference"
+					},
+					"name": "sourceQualifying"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_Gold_Fact_Qualifying",
+						"type": "DatasetReference"
+					},
+					"name": "sinkGoldQualifying"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          qualify_id as integer,",
+				"          race_sk as integer,",
+				"          date_sk as integer,",
+				"          driver_sk as integer,",
+				"          constructor_sk as integer,",
+				"          circuit_sk as integer,",
+				"          car_number as short,",
+				"          qualifying_position as short,",
+				"          q1_ms as integer,",
+				"          q2_ms as integer,",
+				"          q3_ms as integer,",
+				"          best_qualifying_ms as integer,",
+				"          reached_q2 as short,",
+				"          reached_q3 as short,",
+				"          is_pole_position as short",
+				"     ),",
+				"     allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT TRY_CONVERT(int,q.qualifyId) AS qualify_id, dr.race_sk, dd.date_sk, dv.driver_sk, dc.constructor_sk, ci.circuit_sk, TRY_CONVERT(smallint, NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(20),q.[number]))),\\'\\\\N\\'),\\'\\')) AS car_number, TRY_CONVERT(smallint,q.[position]) AS qualifying_position, t.q1_ms, t.q2_ms, t.q3_ms, (SELECT MIN(v) FROM (VALUES(t.q1_ms),(t.q2_ms),(t.q3_ms)) AS times(v)) AS best_qualifying_ms, CAST(CASE WHEN t.q2_ms IS NOT NULL THEN 1 ELSE 0 END AS tinyint) AS reached_q2, CAST(CASE WHEN t.q3_ms IS NOT NULL THEN 1 ELSE 0 END AS tinyint) AS reached_q3, CAST(CASE WHEN TRY_CONVERT(smallint,q.[position])=1 THEN 1 ELSE 0 END AS tinyint) AS is_pole_position FROM silver.qualifying q INNER JOIN gold.dim_race dr ON dr.race_id=TRY_CONVERT(int,q.raceId) INNER JOIN gold.dim_date dd ON dd.full_date=dr.race_date INNER JOIN gold.dim_driver dv ON dv.driver_id=TRY_CONVERT(int,q.driverId) INNER JOIN gold.dim_constructor dc ON dc.constructor_id=TRY_CONVERT(int,q.constructorId) INNER JOIN silver.races r ON TRY_CONVERT(int,r.raceId)=dr.race_id INNER JOIN gold.dim_circuit ci ON ci.circuit_id=TRY_CONVERT(int,r.circuitId) CROSS APPLY (SELECT CASE WHEN TRY_CONVERT(time(3), CONCAT(\\'00:\\', NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(40), q.[q1]))), \\'\\\\N\\'), \\'\\'))) IS NOT NULL THEN DATEDIFF(millisecond, CAST(\\'00:00:00.000\\' AS time(3)), TRY_CONVERT(time(3), CONCAT(\\'00:\\', NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(40), q.[q1]))), \\'\\\\N\\'), \\'\\')))) END AS q1_ms, CASE WHEN TRY_CONVERT(time(3), CONCAT(\\'00:\\', NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(40), q.[q2]))), \\'\\\\N\\'), \\'\\'))) IS NOT NULL THEN DATEDIFF(millisecond, CAST(\\'00:00:00.000\\' AS time(3)), TRY_CONVERT(time(3), CONCAT(\\'00:\\', NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(40), q.[q2]))), \\'\\\\N\\'), \\'\\')))) END AS q2_ms, CASE WHEN TRY_CONVERT(time(3), CONCAT(\\'00:\\', NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(40), q.[q3]))), \\'\\\\N\\'), \\'\\'))) IS NOT NULL THEN DATEDIFF(millisecond, CAST(\\'00:00:00.000\\' AS time(3)), TRY_CONVERT(time(3), CONCAT(\\'00:\\', NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(40), q.[q3]))), \\'\\\\N\\'), \\'\\')))) END AS q3_ms) t WHERE TRY_CONVERT(int,q.qualifyId) IS NOT NULL AND TRY_CONVERT(smallint,q.[position])>=1 AND NOT EXISTS (SELECT 1 FROM gold.fact_qualifying f WHERE f.qualify_id=TRY_CONVERT(int,q.qualifyId))',",
+				"     format: 'query') ~> sourceQualifying",
+				"sourceQualifying sink(allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     input(",
+				"          qualifying_sk as long,",
+				"          qualify_id as integer,",
+				"          race_sk as integer,",
+				"          date_sk as integer,",
+				"          driver_sk as integer,",
+				"          constructor_sk as integer,",
+				"          circuit_sk as integer,",
+				"          car_number as integer,",
+				"          qualifying_position as integer,",
+				"          q1_ms as integer,",
+				"          q2_ms as integer,",
+				"          q3_ms as integer,",
+				"          best_qualifying_ms as integer,",
+				"          reached_q2 as integer,",
+				"          reached_q3 as integer,",
+				"          is_pole_position as integer,",
+				"          {_loaded_at} as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          qualify_id,",
+				"          race_sk,",
+				"          date_sk,",
+				"          driver_sk,",
+				"          constructor_sk,",
+				"          circuit_sk,",
+				"          car_number,",
+				"          qualifying_position,",
+				"          q1_ms,",
+				"          q2_ms,",
+				"          q3_ms,",
+				"          best_qualifying_ms,",
+				"          reached_q2,",
+				"          reached_q3,",
+				"          is_pole_position",
+				"     )) ~> sinkGoldQualifying"
+			]
+		}
+	}
+}
