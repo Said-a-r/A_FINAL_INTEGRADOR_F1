@@ -1,0 +1,1843 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nombre de instancia de Data Factory",
+			"defaultValue": "adf-ucb-formula1-9395402"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/df_bronze_drivers')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "bronze"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_raw_drivers",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_drivers",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          driverId as string,",
+						"          driverRef as string,",
+						"          number as string,",
+						"          code as string,",
+						"          forename as string,",
+						"          surname as string,",
+						"          dob as string,",
+						"          nationality as string,",
+						"          url as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          driverId as string,",
+						"          driverRef as string,",
+						"          number as string,",
+						"          code as string,",
+						"          forename as string,",
+						"          surname as string,",
+						"          dob as string,",
+						"          nationality as string,",
+						"          url as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_bronze_lap_times')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "bronze"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_raw_lap_times",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_lap_times",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          raceId as string,",
+						"          driverId as string,",
+						"          lap as string,",
+						"          position as string,",
+						"          time as string,",
+						"          milliseconds as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          raceId as string,",
+						"          driverId as string,",
+						"          lap as string,",
+						"          position as string,",
+						"          time as string,",
+						"          milliseconds as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_bronze_pit_stops')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "bronze"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_raw_pit_stops",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_pit_stops",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          raceId as string,",
+						"          driverId as string,",
+						"          stop as string,",
+						"          lap as string,",
+						"          time as string,",
+						"          duration as string,",
+						"          milliseconds as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          raceId as string,",
+						"          driverId as string,",
+						"          stop as string,",
+						"          lap as string,",
+						"          time as string,",
+						"          duration as string,",
+						"          milliseconds as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_bronze_qualifying')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "bronze"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_raw_qualifying",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_qualifying",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          qualifyId as string,",
+						"          raceId as string,",
+						"          driverId as string,",
+						"          constructorId as string,",
+						"          number as string,",
+						"          position as string,",
+						"          q1 as string,",
+						"          q2 as string,",
+						"          q3 as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          qualifyId as string,",
+						"          raceId as string,",
+						"          driverId as string,",
+						"          constructorId as string,",
+						"          number as string,",
+						"          position as string,",
+						"          q1 as string,",
+						"          q2 as string,",
+						"          q3 as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_bronze_races')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "bronze"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_raw_races",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_races",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          raceId as string,",
+						"          year as string,",
+						"          round as string,",
+						"          circuitId as string,",
+						"          name as string,",
+						"          date as string,",
+						"          time as string,",
+						"          url as string,",
+						"          fp1_date as string,",
+						"          fp1_time as string,",
+						"          fp2_date as string,",
+						"          fp2_time as string,",
+						"          fp3_date as string,",
+						"          fp3_time as string,",
+						"          quali_date as string,",
+						"          quali_time as string,",
+						"          sprint_date as string,",
+						"          sprint_time as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          raceId as string,",
+						"          year as string,",
+						"          round as string,",
+						"          circuitId as string,",
+						"          name as string,",
+						"          date as string,",
+						"          time as string,",
+						"          url as string,",
+						"          fp1_date as string,",
+						"          fp1_time as string,",
+						"          fp2_date as string,",
+						"          fp2_time as string,",
+						"          fp3_date as string,",
+						"          fp3_time as string,",
+						"          quali_date as string,",
+						"          quali_time as string,",
+						"          sprint_date as string,",
+						"          sprint_time as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_bronze_results')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "bronze"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_raw_results",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_results",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          resultId as string,",
+						"          raceId as string,",
+						"          driverId as string,",
+						"          constructorId as string,",
+						"          number as string,",
+						"          grid as string,",
+						"          position as string,",
+						"          positionText as string,",
+						"          positionOrder as string,",
+						"          points as string,",
+						"          laps as string,",
+						"          time as string,",
+						"          milliseconds as string,",
+						"          fastestLap as string,",
+						"          rank as string,",
+						"          fastestLapTime as string,",
+						"          fastestLapSpeed as string,",
+						"          statusId as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          resultId as string,",
+						"          raceId as string,",
+						"          driverId as string,",
+						"          constructorId as string,",
+						"          number as string,",
+						"          grid as string,",
+						"          position as string,",
+						"          positionText as string,",
+						"          positionOrder as string,",
+						"          points as string,",
+						"          laps as string,",
+						"          time as string,",
+						"          milliseconds as string,",
+						"          fastestLap as string,",
+						"          rank as string,",
+						"          fastestLapTime as string,",
+						"          fastestLapSpeed as string,",
+						"          statusId as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_bronze_seasons')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "bronze"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_raw_seasons",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_seasons",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          year as string,",
+						"          url as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          year as string,",
+						"          url as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_bronze_sprint_results')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "bronze"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_raw_sprint_results",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_sprint_results",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          resultId as string,",
+						"          raceId as string,",
+						"          driverId as string,",
+						"          constructorId as string,",
+						"          number as string,",
+						"          grid as string,",
+						"          position as string,",
+						"          positionText as string,",
+						"          positionOrder as string,",
+						"          points as string,",
+						"          laps as string,",
+						"          time as string,",
+						"          milliseconds as string,",
+						"          fastestLap as string,",
+						"          fastestLapTime as string,",
+						"          statusId as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          resultId as string,",
+						"          raceId as string,",
+						"          driverId as string,",
+						"          constructorId as string,",
+						"          number as string,",
+						"          grid as string,",
+						"          position as string,",
+						"          positionText as string,",
+						"          positionOrder as string,",
+						"          points as string,",
+						"          laps as string,",
+						"          time as string,",
+						"          milliseconds as string,",
+						"          fastestLap as string,",
+						"          fastestLapTime as string,",
+						"          statusId as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_bronze_status')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "bronze"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_raw_status",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_status",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          statusId as string,",
+						"          status as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          statusId as string,",
+						"          status as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_circuits')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_circuits",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_circuits",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          circuitId as string,",
+						"          circuitRef as string,",
+						"          name as string,",
+						"          location as string,",
+						"          country as string,",
+						"          lat as string,",
+						"          lng as string,",
+						"          alt as string,",
+						"          url as string",
+						"     ),",
+						"     allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 derive(circuitId = toInteger(circuitId),",
+						"          location = trim(location),",
+						"          country = trim(country),",
+						"          lat = toDecimal(lat, 9, 6),",
+						"          lng = toDecimal(lng, 9, 6),",
+						"          alt = iif(isNull(alt) || alt == '' || upper(alt) == 'N/A', toInteger(null()), toInteger(alt))) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     input(",
+						"          circuitId as integer,",
+						"          circuitRef as string,",
+						"          name as string,",
+						"          location as string,",
+						"          country as string,",
+						"          lat as decimal(9,6),",
+						"          lng as decimal(9,6),",
+						"          alt as integer,",
+						"          url as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          circuitId,",
+						"          circuitRef,",
+						"          name,",
+						"          location,",
+						"          country,",
+						"          lat,",
+						"          lng,",
+						"          alt,",
+						"          url",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_constructor_results')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_constructor_results",
+								"type": "DatasetReference"
+							},
+							"name": "source1",
+							"description": "."
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_constructor_results",
+								"type": "DatasetReference"
+							},
+							"name": "sink1",
+							"description": "."
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1",
+							"description": "."
+						},
+						{
+							"name": "derivedColumn2",
+							"description": "."
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          constructorResultsId as string,",
+						"          raceId as string,",
+						"          constructorId as string,",
+						"          points as string,",
+						"          status as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 derive(constructorResultsId = toInteger(constructorResultsId),",
+						"          raceId = toInteger(raceId),",
+						"          constructorId = toInteger(constructorId)) ~> derivedColumn1",
+						"derivedColumn1 derive(points = toDecimal(points, 8, 2),",
+						"          status = iif(",
+						"          isNull(status) || status == `\\N` || status == '',",
+						"          toString(null()),",
+						"          status",
+						"     )) ~> derivedColumn2",
+						"derivedColumn2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          constructorResultsId as integer,",
+						"          raceId as integer,",
+						"          constructorId as integer,",
+						"          points as decimal(8,2),",
+						"          status as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          constructorResultsId,",
+						"          raceId,",
+						"          constructorId,",
+						"          points,",
+						"          status",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_constructor_standings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_constructor_standings",
+								"type": "DatasetReference"
+							},
+							"name": "source1",
+							"description": "."
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_constructor_standings",
+								"type": "DatasetReference"
+							},
+							"name": "sink1",
+							"description": "."
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1",
+							"description": "."
+						},
+						{
+							"name": "derivedColumn2",
+							"description": "."
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          constructorStandingsId as string,",
+						"          raceId as string,",
+						"          constructorId as string,",
+						"          points as string,",
+						"          position as string,",
+						"          positionText as string,",
+						"          wins as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 derive(constructorStandingsId = toInteger(constructorStandingsId),",
+						"          raceId = toInteger(raceId),",
+						"          constructorId = toInteger(constructorId)) ~> derivedColumn1",
+						"derivedColumn1 derive(points = toDecimal(points, 8, 2),",
+						"          position = toShort(position),",
+						"          wins = toShort(wins)) ~> derivedColumn2",
+						"derivedColumn2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          constructorStandingsId as integer,",
+						"          raceId as integer,",
+						"          constructorId as integer,",
+						"          points as decimal(8,2),",
+						"          position as integer,",
+						"          positionText as string,",
+						"          wins as integer",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          constructorStandingsId,",
+						"          raceId,",
+						"          constructorId,",
+						"          points,",
+						"          position,",
+						"          positionText,",
+						"          wins",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_constructors')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_constructors",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_constructors",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          constructorId as string,",
+						"          constructorRef as string,",
+						"          name as string,",
+						"          nationality as string,",
+						"          url as string",
+						"     ),",
+						"     allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 derive(constructorId = toInteger(constructorId),",
+						"          name = trim(name),",
+						"          nationality = iif(isNull(nationality) || trim(nationality) == '', toString(null()), trim(nationality))) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     input(",
+						"          constructorId as integer,",
+						"          constructorRef as string,",
+						"          name as string,",
+						"          nationality as string,",
+						"          url as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          constructorId,",
+						"          constructorRef,",
+						"          name,",
+						"          nationality,",
+						"          url",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_driver_standings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_driver_standings",
+								"type": "DatasetReference"
+							},
+							"name": "source1",
+							"description": "."
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_driver_standings",
+								"type": "DatasetReference"
+							},
+							"name": "sink1",
+							"description": "."
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1",
+							"description": "."
+						},
+						{
+							"name": "derivedColumn2",
+							"description": "."
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          driverStandingsId as string,",
+						"          raceId as string,",
+						"          driverId as string,",
+						"          points as string,",
+						"          position as string,",
+						"          positionText as string,",
+						"          wins as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 derive(driverStandingsId = toInteger(driverStandingsId),",
+						"          raceId = toInteger(raceId),",
+						"          driverId = toInteger(driverId)) ~> derivedColumn1",
+						"derivedColumn1 derive(points = toDecimal(points, 8, 2),",
+						"          position = toShort(position),",
+						"          wins = toShort(wins)) ~> derivedColumn2",
+						"derivedColumn2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          driverStandingsId as integer,",
+						"          raceId as integer,",
+						"          driverId as integer,",
+						"          points as decimal(8,2),",
+						"          position as integer,",
+						"          positionText as string,",
+						"          wins as integer",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          driverStandingsId,",
+						"          raceId,",
+						"          driverId,",
+						"          points,",
+						"          position,",
+						"          positionText,",
+						"          wins",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_drivers')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_drivers",
+								"type": "DatasetReference"
+							},
+							"name": "source1",
+							"description": "."
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_drivers",
+								"type": "DatasetReference"
+							},
+							"name": "sink1",
+							"description": "Exportar datos"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1",
+							"description": "."
+						},
+						{
+							"name": "derivedColumn2",
+							"description": "."
+						},
+						{
+							"name": "aggregate1",
+							"description": "."
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          driverId as string,",
+						"          driverRef as string,",
+						"          number as string,",
+						"          code as string,",
+						"          forename as string,",
+						"          surname as string,",
+						"          dob as string,",
+						"          nationality as string,",
+						"          url as string",
+						"     ),",
+						"     allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 derive(forename = initCap(lower(trim(forename))),",
+						"          surname = initCap(lower(trim(surname))),",
+						"          nationality = initCap(lower(trim(nationality))),",
+						"          number = iif(isNull(number) || !regexMatch(number, `^[0-9]+$`), toString(null()), number),",
+						"          code = iif(isNull(code) || !regexMatch(code, `^[A-Za-z]{3}$`), toString(null()), code)) ~> derivedColumn1",
+						"derivedColumn1 derive(driverId = toInteger(driverId),",
+						"          number = iif(isNull(number), toShort(null()), toShort(number)),",
+						"          dob = iif(regexMatch(dob, `^[0-9]{4}-[0-9]{2}-[0-9]{2}$`), toDate(dob, 'yyyy-MM-dd'),",
+						"                iif(regexMatch(dob, `^[0-9]{4}/[0-9]{2}/[0-9]{2}$`), toDate(dob, 'yyyy/MM/dd'),",
+						"                iif(regexMatch(dob, `^[0-9]{2}/[0-9]{2}/[0-9]{4}$`), toDate(dob, 'dd/MM/yyyy'),",
+						"                iif(regexMatch(dob, `^[0-9]{2}-[A-Za-z]{3}-[0-9]{4}$`), toDate(dob, 'dd-MMM-yyyy'),",
+						"                iif(regexMatch(dob, `^[0-9]{2}-[0-9]{2}-[0-9]{4}$`), toDate(dob, 'MM-dd-yyyy'),",
+						"                toDate(null()))))))) ~> derivedColumn2",
+						"derivedColumn2 aggregate(groupBy(driverId),",
+						"     driverRef = first(driverRef),",
+						"          number = first(number),",
+						"          code = first(code),",
+						"          forename = first(forename),",
+						"          surname = first(surname),",
+						"          dob = first(dob),",
+						"          nationality = first(nationality),",
+						"          url = first(url)) ~> aggregate1",
+						"aggregate1 sink(allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     input(",
+						"          driverId as integer,",
+						"          driverRef as string,",
+						"          number as integer,",
+						"          code as string,",
+						"          forename as string,",
+						"          surname as string,",
+						"          dob as date,",
+						"          nationality as string,",
+						"          url as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          driverId,",
+						"          driverRef,",
+						"          number,",
+						"          code,",
+						"          forename,",
+						"          surname,",
+						"          dob,",
+						"          nationality,",
+						"          url",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_lap_times')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_lap_times",
+								"type": "DatasetReference"
+							},
+							"name": "source1",
+							"description": "."
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_lap_times",
+								"type": "DatasetReference"
+							},
+							"name": "sink1",
+							"description": "."
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1",
+							"description": "."
+						},
+						{
+							"name": "derivedColumn2",
+							"description": "."
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          raceId as string,",
+						"          driverId as string,",
+						"          lap as string,",
+						"          position as string,",
+						"          time as string,",
+						"          milliseconds as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 derive(raceId = toInteger(raceId),",
+						"          driverId = toInteger(driverId)) ~> derivedColumn1",
+						"derivedColumn1 derive(lap = toShort(lap),",
+						"          position = toShort(position),",
+						"          milliseconds = toInteger(milliseconds)) ~> derivedColumn2",
+						"derivedColumn2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          raceId as integer,",
+						"          driverId as integer,",
+						"          lap as integer,",
+						"          position as integer,",
+						"          time as string,",
+						"          milliseconds as integer",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          raceId,",
+						"          driverId,",
+						"          lap,",
+						"          position,",
+						"          time,",
+						"          milliseconds",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_pit_stops')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_pit_stops",
+								"type": "DatasetReference"
+							},
+							"name": "source1",
+							"description": "."
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_pit_stops",
+								"type": "DatasetReference"
+							},
+							"name": "sink1",
+							"description": "."
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1",
+							"description": "."
+						},
+						{
+							"name": "derivedColumn2",
+							"description": "."
+						},
+						{
+							"name": "derivedColumn3",
+							"description": "."
+						},
+						{
+							"name": "aggregate1",
+							"description": "."
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          raceId as string,",
+						"          driverId as string,",
+						"          stop as string,",
+						"          lap as string,",
+						"          time as string,",
+						"          duration as string,",
+						"          milliseconds as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 derive(raceId = toInteger(raceId),",
+						"          driverId = toInteger(driverId)) ~> derivedColumn1",
+						"derivedColumn1 derive(stop = toShort(stop),",
+						"          lap = toShort(lap),",
+						"          milliseconds = toInteger(milliseconds)) ~> derivedColumn2",
+						"derivedColumn2 derive(duration = toDecimal(milliseconds / 1000.0, 10, 3)) ~> derivedColumn3",
+						"derivedColumn3 aggregate(groupBy(raceId,",
+						"          driverId,",
+						"          stop),",
+						"     each(match(name!='raceId'&&name!='driverId'&&name!='stop'), $$ = first($$))) ~> aggregate1",
+						"aggregate1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          raceId as integer,",
+						"          driverId as integer,",
+						"          stop as integer,",
+						"          lap as integer,",
+						"          time as timestamp,",
+						"          duration as decimal(10,3),",
+						"          milliseconds as integer",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          raceId,",
+						"          driverId,",
+						"          stop,",
+						"          lap,",
+						"          time,",
+						"          duration,",
+						"          milliseconds",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_qualifying')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_qualifying",
+								"type": "DatasetReference"
+							},
+							"name": "source1",
+							"description": "."
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_qualifying",
+								"type": "DatasetReference"
+							},
+							"name": "sink1",
+							"description": "."
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1",
+							"description": "."
+						},
+						{
+							"name": "derivedColumn2",
+							"description": "."
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          qualifyId as string,",
+						"          raceId as string,",
+						"          driverId as string,",
+						"          constructorId as string,",
+						"          number as string,",
+						"          position as string,",
+						"          q1 as string,",
+						"          q2 as string,",
+						"          q3 as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 derive(qualifyId = toInteger(qualifyId),",
+						"          raceId = toInteger(raceId),",
+						"          driverId = toInteger(driverId),",
+						"          constructorId = toInteger(constructorId),",
+						"          number = toShort(number),",
+						"          position = toShort(position)) ~> derivedColumn1",
+						"derivedColumn1 derive(q1 = iif(",
+						"          isNull(q1) || q1 == `\\N` || q1 == '',",
+						"          toString(null()),",
+						"          q1",
+						"     ),",
+						"          q2 = iif(",
+						"          isNull(q2) || q2 == `\\N` || q2 == '',",
+						"          toString(null()),",
+						"          q2",
+						"     ),",
+						"          q3 = iif(",
+						"          isNull(q3) || q3 == `\\N` || q3 == '',",
+						"          toString(null()),",
+						"          q3",
+						"     )) ~> derivedColumn2",
+						"derivedColumn2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          qualifyId as integer,",
+						"          raceId as integer,",
+						"          driverId as integer,",
+						"          constructorId as integer,",
+						"          number as integer,",
+						"          position as integer,",
+						"          q1 as string,",
+						"          q2 as string,",
+						"          q3 as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          qualifyId,",
+						"          raceId,",
+						"          driverId,",
+						"          constructorId,",
+						"          number,",
+						"          position,",
+						"          q1,",
+						"          q2,",
+						"          q3",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_races')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_races",
+								"type": "DatasetReference"
+							},
+							"name": "source1",
+							"description": "."
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_races",
+								"type": "DatasetReference"
+							},
+							"name": "sink1",
+							"description": "."
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1",
+							"description": "."
+						},
+						{
+							"name": "derivedColumn2",
+							"description": "."
+						},
+						{
+							"name": "derivedColumn3",
+							"description": "."
+						},
+						{
+							"name": "derivedColumn4",
+							"description": "."
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          raceId as string,",
+						"          year as string,",
+						"          round as string,",
+						"          circuitId as string,",
+						"          name as string,",
+						"          date as string,",
+						"          time as string,",
+						"          url as string,",
+						"          fp1_date as string,",
+						"          fp1_time as string,",
+						"          fp2_date as string,",
+						"          fp2_time as string,",
+						"          fp3_date as string,",
+						"          fp3_time as string,",
+						"          quali_date as string,",
+						"          quali_time as string,",
+						"          sprint_date as string,",
+						"          sprint_time as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 derive(raceId = toInteger(raceId),",
+						"          year = toShort(year),",
+						"          round = toShort(round),",
+						"          circuitId = toInteger(circuitId),",
+						"          name = trim(name)) ~> derivedColumn1",
+						"derivedColumn1 derive(date = iif(",
+						"          regexMatch(date, `^[0-9]{4}-[0-9]{2}-[0-9]{2}$`),",
+						"          toDate(date, 'yyyy-MM-dd'),",
+						"          iif(",
+						"               regexMatch(date, `^[0-9]{2}/[0-9]{2}/[0-9]{4}$`),",
+						"               toDate(date, 'dd/MM/yyyy'),",
+						"               iif(",
+						"                    regexMatch(date, `^[0-9]{4}/[0-9]{2}/[0-9]{2}$`),",
+						"                    toDate(date, 'yyyy/MM/dd'),",
+						"                    iif(",
+						"                         regexMatch(date, `^[0-9]{2}-[0-9]{2}-[0-9]{4}$`),",
+						"                         toDate(date, 'MM-dd-yyyy'),",
+						"                         toDate(date, 'dd-MMM-yyyy')",
+						"                    )",
+						"               )",
+						"          )",
+						"     )) ~> derivedColumn2",
+						"derivedColumn2 derive(fp1_date = iif(fp1_date == `\\N`, toDate(null()), toDate(fp1_date, 'yyyy-MM-dd')),",
+						"          fp2_date = iif(fp2_date == `\\N`, toDate(null()), toDate(fp2_date, 'yyyy-MM-dd')),",
+						"          fp3_date = iif(fp3_date == `\\N`, toDate(null()), toDate(fp3_date, 'yyyy-MM-dd')),",
+						"          quali_date = iif(quali_date == `\\N`, toDate(null()), toDate(quali_date, 'yyyy-MM-dd')),",
+						"          sprint_date = iif(sprint_date == `\\N`, toDate(null()), toDate(sprint_date, 'yyyy-MM-dd'))) ~> derivedColumn3",
+						"derivedColumn3 derive(time = iif(time == `\\N`, toString(null()), time),",
+						"          fp1_time = iif(fp1_time == `\\N`, toString(null()), fp1_time),",
+						"          fp2_time = iif(fp2_time == `\\N`, toString(null()), fp2_time),",
+						"          fp3_time = iif(fp3_time == `\\N`, toString(null()), fp3_time),",
+						"          quali_time = iif(quali_time == `\\N`, toString(null()), quali_time),",
+						"          sprint_time = iif(sprint_time == `\\N`, toString(null()), sprint_time)) ~> derivedColumn4",
+						"derivedColumn4 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          raceId as integer,",
+						"          year as integer,",
+						"          round as integer,",
+						"          circuitId as integer,",
+						"          name as string,",
+						"          date as date,",
+						"          time as timestamp,",
+						"          url as string,",
+						"          fp1_date as date,",
+						"          fp1_time as timestamp,",
+						"          fp2_date as date,",
+						"          fp2_time as timestamp,",
+						"          fp3_date as date,",
+						"          fp3_time as timestamp,",
+						"          quali_date as date,",
+						"          quali_time as timestamp,",
+						"          sprint_date as date,",
+						"          sprint_time as timestamp",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          raceId,",
+						"          year,",
+						"          round,",
+						"          circuitId,",
+						"          name,",
+						"          date,",
+						"          time,",
+						"          url,",
+						"          fp1_date,",
+						"          fp1_time,",
+						"          fp2_date,",
+						"          fp2_time,",
+						"          fp3_date,",
+						"          fp3_time,",
+						"          quali_date,",
+						"          quali_time,",
+						"          sprint_date,",
+						"          sprint_time",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_results')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_results",
+								"type": "DatasetReference"
+							},
+							"name": "source1",
+							"description": "."
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_results",
+								"type": "DatasetReference"
+							},
+							"name": "sink1",
+							"description": "."
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1",
+							"description": "."
+						},
+						{
+							"name": "derivedColumn2",
+							"description": "."
+						},
+						{
+							"name": "derivedColumn3",
+							"description": "."
+						},
+						{
+							"name": "filter1",
+							"description": "."
+						},
+						{
+							"name": "aggregate1",
+							"description": "."
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          resultId as string,",
+						"          raceId as string,",
+						"          driverId as string,",
+						"          constructorId as string,",
+						"          number as string,",
+						"          grid as string,",
+						"          position as string,",
+						"          positionText as string,",
+						"          positionOrder as string,",
+						"          points as string,",
+						"          laps as string,",
+						"          time as string,",
+						"          milliseconds as string,",
+						"          fastestLap as string,",
+						"          rank as string,",
+						"          fastestLapTime as string,",
+						"          fastestLapSpeed as string,",
+						"          statusId as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 derive(resultId = toInteger(resultId),",
+						"          raceId = toInteger(raceId),",
+						"          driverId = toInteger(driverId),",
+						"          constructorId = toInteger(constructorId),",
+						"          statusId = toInteger(statusId)) ~> derivedColumn1",
+						"derivedColumn1 derive(number = iif(number == `\\N`, toShort(null()), toShort(number)),",
+						"          grid = toShort(grid),",
+						"          position = iif(position == `\\N`, toShort(null()), toShort(position)),",
+						"          positionOrder = toShort(positionOrder),",
+						"          laps = toShort(laps),",
+						"          fastestLap = iif(fastestLap == `\\N`, toShort(null()), toShort(fastestLap)),",
+						"          rank = iif(rank == `\\N`, toShort(null()), toShort(rank))) ~> derivedColumn2",
+						"derivedColumn2 derive(points = toDecimal(points, 8, 2),",
+						"          milliseconds = iif(milliseconds == `\\N`, toLong(null()), toLong(milliseconds)),",
+						"          fastestLapSpeed = iif(fastestLapSpeed == `\\N`, toDecimal(null(), 8, 3), toDecimal(fastestLapSpeed, 8, 3)),",
+						"          time = iif(time == `\\N`, toString(null()), time),",
+						"          fastestLapTime = iif(fastestLapTime == `\\N`, toString(null()), fastestLapTime)) ~> derivedColumn3",
+						"derivedColumn3 filter(raceId != 99999) ~> filter1",
+						"filter1 aggregate(groupBy(resultId),",
+						"     each(match(name!='resultId'), $$ = first($$))) ~> aggregate1",
+						"aggregate1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          resultId as integer,",
+						"          raceId as integer,",
+						"          driverId as integer,",
+						"          constructorId as integer,",
+						"          number as integer,",
+						"          grid as integer,",
+						"          position as integer,",
+						"          positionText as string,",
+						"          positionOrder as integer,",
+						"          points as decimal(8,2),",
+						"          laps as integer,",
+						"          time as string,",
+						"          milliseconds as long,",
+						"          fastestLap as integer,",
+						"          rank as integer,",
+						"          fastestLapTime as string,",
+						"          fastestLapSpeed as decimal(8,3),",
+						"          statusId as integer",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          resultId,",
+						"          raceId,",
+						"          driverId,",
+						"          constructorId,",
+						"          number,",
+						"          grid,",
+						"          position,",
+						"          positionText,",
+						"          positionOrder,",
+						"          points,",
+						"          laps,",
+						"          time,",
+						"          milliseconds,",
+						"          fastestLap,",
+						"          rank,",
+						"          fastestLapTime,",
+						"          fastestLapSpeed,",
+						"          statusId",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

@@ -1,0 +1,2749 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nombre de instancia de Data Factory",
+			"defaultValue": "adf-ucb-formula1-9395402"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_seasons')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_seasons",
+								"type": "DatasetReference"
+							},
+							"name": "source1",
+							"description": "."
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_seasons",
+								"type": "DatasetReference"
+							},
+							"name": "sink1",
+							"description": "."
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1",
+							"description": "."
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          year as string,",
+						"          url as string",
+						"     ),",
+						"     allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 derive(year = toShort(year)) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     input(",
+						"          year as integer,",
+						"          url as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          year,",
+						"          url",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_sprint_results')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_sprint_results",
+								"type": "DatasetReference"
+							},
+							"name": "source1",
+							"description": "."
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_sprint_results",
+								"type": "DatasetReference"
+							},
+							"name": "sink1",
+							"description": "."
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1",
+							"description": "."
+						},
+						{
+							"name": "derivedColumn2",
+							"description": "."
+						},
+						{
+							"name": "derivedColumn3",
+							"description": "."
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          resultId as string,",
+						"          raceId as string,",
+						"          driverId as string,",
+						"          constructorId as string,",
+						"          number as string,",
+						"          grid as string,",
+						"          position as string,",
+						"          positionText as string,",
+						"          positionOrder as string,",
+						"          points as string,",
+						"          laps as string,",
+						"          time as string,",
+						"          milliseconds as string,",
+						"          fastestLap as string,",
+						"          fastestLapTime as string,",
+						"          statusId as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 derive(resultId = toInteger(resultId),",
+						"          raceId = toInteger(raceId),",
+						"          driverId = toInteger(driverId),",
+						"          constructorId = toInteger(constructorId),",
+						"          statusId = toInteger(statusId)) ~> derivedColumn1",
+						"derivedColumn1 derive(number = toShort(number),",
+						"          grid = toShort(grid),",
+						"          position = iif(position == `\\N`, toShort(null()), toShort(position)),",
+						"          positionOrder = toShort(positionOrder),",
+						"          points = toDecimal(points, 8, 2),",
+						"          laps = toShort(laps),",
+						"          fastestLap = iif(fastestLap == `\\N`, toShort(null()), toShort(fastestLap))) ~> derivedColumn2",
+						"derivedColumn2 derive(time = iif(",
+						"          isNull(time) || time == `\\N` || time == '',",
+						"          toString(null()),",
+						"          time",
+						"     ),",
+						"          milliseconds = iif(",
+						"          isNull(milliseconds) || milliseconds == `\\N` || milliseconds == '',",
+						"          toLong(null()),",
+						"          toLong(milliseconds)",
+						"     ),",
+						"          fastestLapTime = iif(",
+						"          isNull(fastestLapTime) || fastestLapTime == `\\N` || fastestLapTime == '',",
+						"          toString(null()),",
+						"          fastestLapTime",
+						"     )) ~> derivedColumn3",
+						"derivedColumn3 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          resultId as integer,",
+						"          raceId as integer,",
+						"          driverId as integer,",
+						"          constructorId as integer,",
+						"          number as integer,",
+						"          grid as integer,",
+						"          position as integer,",
+						"          positionText as string,",
+						"          positionOrder as integer,",
+						"          points as decimal(8,2),",
+						"          laps as integer,",
+						"          time as string,",
+						"          milliseconds as long,",
+						"          fastestLap as integer,",
+						"          fastestLapTime as string,",
+						"          statusId as integer",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          resultId,",
+						"          raceId,",
+						"          driverId,",
+						"          constructorId,",
+						"          number,",
+						"          grid,",
+						"          position,",
+						"          positionText,",
+						"          positionOrder,",
+						"          points,",
+						"          laps,",
+						"          time,",
+						"          milliseconds,",
+						"          fastestLap,",
+						"          fastestLapTime,",
+						"          statusId",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_status')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_status",
+								"type": "DatasetReference"
+							},
+							"name": "source1",
+							"description": "."
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_status",
+								"type": "DatasetReference"
+							},
+							"name": "sink1",
+							"description": "."
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1",
+							"description": "."
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          statusId as string,",
+						"          status as string",
+						"     ),",
+						"     allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 derive(statusId = toInteger(statusId)) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     input(",
+						"          statusId as integer,",
+						"          status as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          statusId,",
+						"          status",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Gold_Dim_Date')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Carga fechas de silver.races hacia gold.dim_date. Ajustar referencia del dataset Silver al nombre real en ADF.",
+				"folder": {
+					"name": "golden"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_races",
+								"type": "DatasetReference"
+							},
+							"name": "sourceRaces"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_Gold_Dim_Date",
+								"type": "DatasetReference"
+							},
+							"name": "sinkGoldDate"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          date_sk as integer,",
+						"          full_date as date,",
+						"          year as short,",
+						"          decade as string,",
+						"          quarter as short,",
+						"          month as short,",
+						"          month_name as string,",
+						"          day_of_week as string",
+						"     ),",
+						"     allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT DISTINCT CAST(YEAR(d.full_date) * 10000 + MONTH(d.full_date) * 100 + DAY(d.full_date) AS int) AS date_sk, d.full_date, CAST(YEAR(d.full_date) AS smallint) AS [year], CONCAT((YEAR(d.full_date) / 10) * 10, \\'s\\') AS decade, CAST(DATEPART(QUARTER, d.full_date) AS tinyint) AS [quarter], CAST(MONTH(d.full_date) AS tinyint) AS [month], CHOOSE(MONTH(d.full_date), \\'Enero\\',\\'Febrero\\',\\'Marzo\\',\\'Abril\\',\\'Mayo\\',\\'Junio\\',\\'Julio\\',\\'Agosto\\',\\'Septiembre\\',\\'Octubre\\',\\'Noviembre\\',\\'Diciembre\\') AS month_name, CHOOSE((DATEDIFF(DAY, \\'19000101\\', d.full_date) % 7 + 7) % 7 + 1, \\'Lunes\\',\\'Martes\\',\\'Miercoles\\',\\'Jueves\\',\\'Viernes\\',\\'Sabado\\',\\'Domingo\\') AS day_of_week FROM (SELECT TRY_CONVERT(date, [date]) AS full_date FROM silver.races) d WHERE d.full_date IS NOT NULL AND NOT EXISTS (SELECT 1 FROM gold.dim_date existing WHERE existing.full_date = d.full_date)',",
+						"     format: 'query') ~> sourceRaces",
+						"sourceRaces sink(allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     input(",
+						"          date_sk as integer,",
+						"          full_date as date,",
+						"          year as integer,",
+						"          decade as string,",
+						"          quarter as integer,",
+						"          month as integer,",
+						"          month_name as string,",
+						"          day_of_week as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          date_sk,",
+						"          full_date,",
+						"          year,",
+						"          decade,",
+						"          quarter,",
+						"          month,",
+						"          month_name,",
+						"          day_of_week",
+						"     )) ~> sinkGoldDate"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Gold_Dim_Race')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Carga dim_race desde silver.races con SQL Source. Verificar columnas raceId, year, round, name, date, time y nombre del dataset Silver. race_sk es IDENTITY y no se envía.",
+				"folder": {
+					"name": "golden"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_races",
+								"type": "DatasetReference"
+							},
+							"name": "sourceRaces"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_Gold_Dim_Race",
+								"type": "DatasetReference"
+							},
+							"name": "sinkGoldRace"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          race_id as integer,",
+						"          season_year as short,",
+						"          round_number as short,",
+						"          race_name as string,",
+						"          race_date as date,",
+						"          race_time_utc as string",
+						"     ),",
+						"     allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT TRY_CONVERT(int, r.raceId) AS race_id, TRY_CONVERT(smallint, r.[year]) AS season_year, TRY_CONVERT(tinyint, r.[round]) AS round_number, LEFT(LTRIM(RTRIM(r.[name])), 120) AS race_name, TRY_CONVERT(date, r.[date]) AS race_date, TRY_CONVERT(time(0), NULLIF(CAST(r.[time] AS varchar(50)), \\'\\\\N\\')) AS race_time_utc FROM silver.races r WHERE TRY_CONVERT(int, r.raceId) IS NOT NULL AND TRY_CONVERT(smallint, r.[year]) IS NOT NULL AND TRY_CONVERT(tinyint, r.[round]) IS NOT NULL AND NULLIF(LTRIM(RTRIM(r.[name])), \\'\\') IS NOT NULL AND TRY_CONVERT(date, r.[date]) IS NOT NULL AND NOT EXISTS (SELECT 1 FROM gold.dim_race g WHERE g.race_id = TRY_CONVERT(int, r.raceId))',",
+						"     format: 'query') ~> sourceRaces",
+						"sourceRaces sink(allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     input(",
+						"          race_sk as integer,",
+						"          race_id as integer,",
+						"          season_year as integer,",
+						"          round_number as integer,",
+						"          race_name as string,",
+						"          race_date as date,",
+						"          race_time_utc as timestamp",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          race_id,",
+						"          season_year,",
+						"          round_number,",
+						"          race_name,",
+						"          race_date,",
+						"          race_time_utc",
+						"     )) ~> sinkGoldRace"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Gold_Dim_Driver')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Carga inicial de pilotos desde silver.drivers a gold.dim_driver. Supone nombres originales de columnas Ergast en Silver. driver_sk es IDENTITY. Validar Source y Sink en ADF.",
+				"folder": {
+					"name": "golden"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_drivers",
+								"type": "DatasetReference"
+							},
+							"name": "sourceDrivers"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_Gold_Dim_Driver",
+								"type": "DatasetReference"
+							},
+							"name": "sinkGoldDriver"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          driver_id as integer,",
+						"          driver_ref as string,",
+						"          permanent_number as short,",
+						"          driver_code as string,",
+						"          forename as string,",
+						"          surname as string,",
+						"          full_name as string,",
+						"          dob as date,",
+						"          nationality as string",
+						"     ),",
+						"     allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT TRY_CONVERT(int, d.driverId) AS driver_id, LEFT(LTRIM(RTRIM(COALESCE(NULLIF(d.driverRef, \\'\\\\N\\'), \\'Unknown\\'))), 60) AS driver_ref, TRY_CONVERT(smallint, NULLIF(NULLIF(CAST(d.[number] AS varchar(30)), \\'\\\\N\\'), \\'\\')) AS permanent_number, LEFT(NULLIF(NULLIF(LTRIM(RTRIM(d.code)), \\'\\\\N\\'), \\'\\'), 3) AS driver_code, LEFT(LTRIM(RTRIM(d.forename)), 60) AS forename, LEFT(LTRIM(RTRIM(d.surname)), 60) AS surname, LEFT(CONCAT(LTRIM(RTRIM(d.forename)), \\' \\', LTRIM(RTRIM(d.surname))), 125) AS full_name, TRY_CONVERT(date, NULLIF(NULLIF(CAST(d.dob AS varchar(30)), \\'\\\\N\\'), \\'\\')) AS dob, LEFT(COALESCE(NULLIF(NULLIF(LTRIM(RTRIM(d.nationality)), \\'\\\\N\\'), \\'\\'), \\'Unknown\\'), 60) AS nationality FROM silver.drivers d WHERE TRY_CONVERT(int, d.driverId) IS NOT NULL AND NULLIF(LTRIM(RTRIM(d.forename)), \\'\\') IS NOT NULL AND NULLIF(LTRIM(RTRIM(d.surname)), \\'\\') IS NOT NULL AND NOT EXISTS (SELECT 1 FROM gold.dim_driver g WHERE g.driver_id = TRY_CONVERT(int, d.driverId))',",
+						"     format: 'query') ~> sourceDrivers",
+						"sourceDrivers sink(allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     input(",
+						"          driver_sk as integer,",
+						"          driver_id as integer,",
+						"          driver_ref as string,",
+						"          permanent_number as integer,",
+						"          driver_code as string,",
+						"          forename as string,",
+						"          surname as string,",
+						"          full_name as string,",
+						"          dob as date,",
+						"          nationality as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          driver_id,",
+						"          driver_ref,",
+						"          permanent_number,",
+						"          driver_code,",
+						"          forename,",
+						"          surname,",
+						"          full_name,",
+						"          dob,",
+						"          nationality",
+						"     )) ~> sinkGoldDriver"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Gold_Dim_Constructor')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Carga constructores Silver a Gold. Usa Source SQL; constructor_sk es IDENTITY. Verificar nombres de columnas Silver y referencias de datasets.",
+				"folder": {
+					"name": "golden"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_constructors",
+								"type": "DatasetReference"
+							},
+							"name": "sourceConstructors"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_Gold_Dim_Constructor",
+								"type": "DatasetReference"
+							},
+							"name": "sinkGoldConstructor"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          constructor_id as integer,",
+						"          constructor_ref as string,",
+						"          constructor_name as string,",
+						"          nationality as string",
+						"     ),",
+						"     allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT TRY_CONVERT(int, c.constructorId) AS constructor_id, LEFT(COALESCE(NULLIF(NULLIF(LTRIM(RTRIM(c.constructorRef)), \\'\\\\N\\'), \\'\\'), \\'Unknown\\'), 60) AS constructor_ref, LEFT(LTRIM(RTRIM(c.[name])), 100) AS constructor_name, LEFT(COALESCE(NULLIF(NULLIF(LTRIM(RTRIM(c.nationality)), \\'\\\\N\\'), \\'\\'), \\'Unknown\\'), 60) AS nationality FROM silver.constructors c WHERE TRY_CONVERT(int, c.constructorId) IS NOT NULL AND NULLIF(LTRIM(RTRIM(c.[name])), \\'\\') IS NOT NULL AND NOT EXISTS (SELECT 1 FROM gold.dim_constructor g WHERE g.constructor_id = TRY_CONVERT(int, c.constructorId))',",
+						"     format: 'query') ~> sourceConstructors",
+						"sourceConstructors sink(allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     input(",
+						"          constructor_sk as integer,",
+						"          constructor_id as integer,",
+						"          constructor_ref as string,",
+						"          constructor_name as string,",
+						"          nationality as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          constructor_id,",
+						"          constructor_ref,",
+						"          constructor_name,",
+						"          nationality",
+						"     )) ~> sinkGoldConstructor"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Gold_Dim_Circuit')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Carga circuitos desde silver.circuits a gold.dim_circuit. Mantiene latitud y longitud para Tableau. Validar nombres de columnas y datasets en ADF.",
+				"folder": {
+					"name": "golden"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_circuits",
+								"type": "DatasetReference"
+							},
+							"name": "sourceCircuits"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_Gold_Dim_Circuit",
+								"type": "DatasetReference"
+							},
+							"name": "sinkGoldCircuit"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          circuit_id as integer,",
+						"          circuit_ref as string,",
+						"          circuit_name as string,",
+						"          location as string,",
+						"          country as string,",
+						"          latitude as decimal(9,6),",
+						"          longitude as decimal(9,6),",
+						"          altitude_m as integer",
+						"     ),",
+						"     allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT TRY_CONVERT(int,c.circuitId) AS circuit_id, LEFT(COALESCE(NULLIF(NULLIF(LTRIM(RTRIM(c.circuitRef)), \\'\\\\N\\'), \\'\\'), \\'Unknown\\'),60) AS circuit_ref, LEFT(LTRIM(RTRIM(c.[name])),120) AS circuit_name, LEFT(COALESCE(NULLIF(NULLIF(LTRIM(RTRIM(c.[location])), \\'\\\\N\\'), \\'\\'), \\'Unknown\\'),80) AS [location], LEFT(COALESCE(NULLIF(NULLIF(LTRIM(RTRIM(c.country)), \\'\\\\N\\'), \\'\\'), \\'Unknown\\'),60) AS country, TRY_CONVERT(decimal(9,6),NULLIF(NULLIF(CAST(c.lat AS varchar(40)), \\'\\\\N\\'),\\'\\')) AS latitude, TRY_CONVERT(decimal(9,6),NULLIF(NULLIF(CAST(c.lng AS varchar(40)), \\'\\\\N\\'),\\'\\')) AS longitude, TRY_CONVERT(int,NULLIF(NULLIF(CAST(c.alt AS varchar(40)), \\'\\\\N\\'),\\'\\')) AS altitude_m FROM silver.circuits c WHERE TRY_CONVERT(int,c.circuitId) IS NOT NULL AND NULLIF(LTRIM(RTRIM(c.[name])), \\'\\') IS NOT NULL AND NOT EXISTS (SELECT 1 FROM gold.dim_circuit g WHERE g.circuit_id=TRY_CONVERT(int,c.circuitId))',",
+						"     format: 'query') ~> sourceCircuits",
+						"sourceCircuits sink(allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     input(",
+						"          circuit_sk as integer,",
+						"          circuit_id as integer,",
+						"          circuit_ref as string,",
+						"          circuit_name as string,",
+						"          location as string,",
+						"          country as string,",
+						"          latitude as decimal(9,6),",
+						"          longitude as decimal(9,6),",
+						"          altitude_m as integer",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          circuit_id,",
+						"          circuit_ref,",
+						"          circuit_name,",
+						"          location,",
+						"          country,",
+						"          latitude,",
+						"          longitude,",
+						"          altitude_m",
+						"     )) ~> sinkGoldCircuit"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Gold_Dim_Status')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Carga estados de resultados de silver.status a gold.dim_status. Clasificacion heuristica de estados para Tableau; validar categorias en vista previa.",
+				"folder": {
+					"name": "golden"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_status",
+								"type": "DatasetReference"
+							},
+							"name": "sourceStatus"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_Gold_Dim_Status",
+								"type": "DatasetReference"
+							},
+							"name": "sinkGoldStatus"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          status_id as integer,",
+						"          status_description as string,",
+						"          status_category as string,",
+						"          is_finished_flag as boolean",
+						"     ),",
+						"     allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT TRY_CONVERT(int, s.statusId) AS status_id, LEFT(LTRIM(RTRIM(s.[status])), 80) AS status_description, CASE WHEN LOWER(LTRIM(RTRIM(s.[status]))) = \\'finished\\' OR LTRIM(RTRIM(s.[status])) LIKE \\'+% Lap%\\' THEN \\'Finished\\' WHEN LOWER(s.[status]) LIKE \\'%accident%\\' OR LOWER(s.[status]) LIKE \\'%collision%\\' OR LOWER(s.[status]) LIKE \\'%spun off%\\' THEN \\'Accident\\' WHEN LOWER(s.[status]) LIKE \\'%engine%\\' OR LOWER(s.[status]) LIKE \\'%gearbox%\\' OR LOWER(s.[status]) LIKE \\'%transmission%\\' OR LOWER(s.[status]) LIKE \\'%hydraulic%\\' OR LOWER(s.[status]) LIKE \\'%electrical%\\' OR LOWER(s.[status]) LIKE \\'%brake%\\' OR LOWER(s.[status]) LIKE \\'%suspension%\\' OR LOWER(s.[status]) LIKE \\'%clutch%\\' OR LOWER(s.[status]) LIKE \\'%overheat%\\' OR LOWER(s.[status]) LIKE \\'%mechanical%\\' OR LOWER(s.[status]) LIKE \\'%turbo%\\' OR LOWER(s.[status]) LIKE \\'%oil%\\' OR LOWER(s.[status]) LIKE \\'%fuel%\\' THEN \\'Mechanical\\' ELSE \\'Other\\' END AS status_category, CAST(CASE WHEN LOWER(LTRIM(RTRIM(s.[status]))) = \\'finished\\' OR LTRIM(RTRIM(s.[status])) LIKE \\'+% Lap%\\' THEN 1 ELSE 0 END AS bit) AS is_finished_flag FROM silver.status s WHERE TRY_CONVERT(int, s.statusId) IS NOT NULL AND NULLIF(LTRIM(RTRIM(s.[status])), \\'\\') IS NOT NULL AND NOT EXISTS (SELECT 1 FROM gold.dim_status g WHERE g.status_id = TRY_CONVERT(int, s.statusId))',",
+						"     format: 'query') ~> sourceStatus",
+						"sourceStatus sink(allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     input(",
+						"          status_sk as integer,",
+						"          status_id as integer,",
+						"          status_description as string,",
+						"          status_category as string,",
+						"          is_finished_flag as boolean",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          status_id,",
+						"          status_description,",
+						"          status_category,",
+						"          is_finished_flag",
+						"     )) ~> sinkGoldStatus"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Gold_Fact_RaceResults')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Carga resultados de Silver a Gold usando claves sustitutas de las 6 dimensiones. Ejecutar después de cargar dimensiones. Requiere DS_Silver_Results y DS_Gold_Fact_RaceResults.",
+				"folder": {
+					"name": "golden"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_results",
+								"type": "DatasetReference"
+							},
+							"name": "sourceRaceResults"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_Gold_Fact_RaceResults",
+								"type": "DatasetReference"
+							},
+							"name": "sinkGoldRaceResults"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          result_id as integer,",
+						"          race_sk as integer,",
+						"          date_sk as integer,",
+						"          driver_sk as integer,",
+						"          constructor_sk as integer,",
+						"          circuit_sk as integer,",
+						"          status_sk as integer,",
+						"          grid_position as short,",
+						"          final_position as short,",
+						"          position_order as short,",
+						"          points as decimal(6,2),",
+						"          laps_completed as short,",
+						"          race_time_ms as long,",
+						"          fastest_lap_ms as integer,",
+						"          fastest_lap_speed_kph as decimal(6,3),",
+						"          is_win as short,",
+						"          is_podium as short,",
+						"          is_dnf as short,",
+						"          positions_gained as short,",
+						"          driver_age_at_race as decimal(4,1)",
+						"     ),",
+						"     allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT  TRY_CONVERT(int, s.resultId) AS result_id,  dr.race_sk, dd.date_sk, dv.driver_sk, dc.constructor_sk, ci.circuit_sk, ds.status_sk,  TRY_CONVERT(smallint, s.grid) AS grid_position,  TRY_CONVERT(smallint, NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(30), s.position))), \\'\\\\N\\'), \\'\\')) AS final_position,  TRY_CONVERT(smallint, s.positionOrder) AS position_order,  TRY_CONVERT(decimal(6,2), s.points) AS points,  TRY_CONVERT(smallint, s.laps) AS laps_completed,  TRY_CONVERT(bigint, NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(50), s.milliseconds))), \\'\\\\N\\'), \\'\\')) AS race_time_ms,  CASE WHEN TRY_CONVERT(time(3), CONCAT(\\'00:\\', NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(50), s.fastestLapTime))), \\'\\\\N\\'), \\'\\'))) IS NOT NULL  THEN DATEDIFF(millisecond, CAST(\\'00:00:00.000\\' AS time(3)), TRY_CONVERT(time(3), CONCAT(\\'00:\\', NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(50), s.fastestLapTime))), \\'\\\\N\\'), \\'\\')))) END AS fastest_lap_ms,  TRY_CONVERT(decimal(6,3), NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(50), s.fastestLapSpeed))), \\'\\\\N\\'), \\'\\')) AS fastest_lap_speed_kph,  CAST(CASE WHEN TRY_CONVERT(int, s.positionOrder) = 1 THEN 1 ELSE 0 END AS tinyint) AS is_win,  CAST(CASE WHEN TRY_CONVERT(int, s.positionOrder) BETWEEN 1 AND 3 THEN 1 ELSE 0 END AS tinyint) AS is_podium,  CAST(CASE WHEN ds.is_finished_flag = 1 THEN 0 ELSE 1 END AS tinyint) AS is_dnf,  CASE WHEN TRY_CONVERT(smallint, s.grid) > 0 AND TRY_CONVERT(smallint, s.positionOrder) IS NOT NULL THEN CAST(TRY_CONVERT(smallint, s.grid) - TRY_CONVERT(smallint, s.positionOrder) AS smallint) END AS positions_gained,  CASE WHEN dv.dob IS NOT NULL AND dr.race_date >= dv.dob THEN CAST(DATEDIFF(day, dv.dob, dr.race_date) / 365.2425 AS decimal(4,1)) END AS driver_age_at_race FROM silver.results s INNER JOIN gold.dim_race dr ON dr.race_id = TRY_CONVERT(int, s.raceId) INNER JOIN gold.dim_date dd ON dd.full_date = dr.race_date INNER JOIN gold.dim_driver dv ON dv.driver_id = TRY_CONVERT(int, s.driverId) INNER JOIN gold.dim_constructor dc ON dc.constructor_id = TRY_CONVERT(int, s.constructorId) INNER JOIN silver.races r ON TRY_CONVERT(int, r.raceId) = dr.race_id INNER JOIN gold.dim_circuit ci ON ci.circuit_id = TRY_CONVERT(int, r.circuitId) INNER JOIN gold.dim_status ds ON ds.status_id = TRY_CONVERT(int, s.statusId) WHERE TRY_CONVERT(int, s.resultId) IS NOT NULL  AND TRY_CONVERT(smallint, s.grid) IS NOT NULL  AND TRY_CONVERT(smallint, s.positionOrder) IS NOT NULL  AND TRY_CONVERT(decimal(6,2), s.points) >= 0  AND TRY_CONVERT(smallint, s.laps) IS NOT NULL  AND NOT EXISTS (SELECT 1 FROM gold.fact_race_results f WHERE f.result_id = TRY_CONVERT(int, s.resultId))',",
+						"     format: 'query') ~> sourceRaceResults",
+						"sourceRaceResults sink(allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     input(",
+						"          result_sk as long,",
+						"          result_id as integer,",
+						"          race_sk as integer,",
+						"          date_sk as integer,",
+						"          driver_sk as integer,",
+						"          constructor_sk as integer,",
+						"          circuit_sk as integer,",
+						"          status_sk as integer,",
+						"          grid_position as integer,",
+						"          final_position as integer,",
+						"          position_order as integer,",
+						"          points as decimal(6,2),",
+						"          laps_completed as integer,",
+						"          race_time_ms as long,",
+						"          fastest_lap_ms as integer,",
+						"          fastest_lap_speed_kph as decimal(6,3),",
+						"          is_win as integer,",
+						"          is_podium as integer,",
+						"          is_dnf as integer,",
+						"          positions_gained as integer,",
+						"          driver_age_at_race as decimal(4,1),",
+						"          {_loaded_at} as timestamp",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          result_id,",
+						"          race_sk,",
+						"          date_sk,",
+						"          driver_sk,",
+						"          constructor_sk,",
+						"          circuit_sk,",
+						"          status_sk,",
+						"          grid_position,",
+						"          final_position,",
+						"          position_order,",
+						"          points,",
+						"          laps_completed,",
+						"          race_time_ms,",
+						"          fastest_lap_ms,",
+						"          fastest_lap_speed_kph,",
+						"          is_win,",
+						"          is_podium,",
+						"          is_dnf,",
+						"          positions_gained,",
+						"          driver_age_at_race",
+						"     )) ~> sinkGoldRaceResults"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Gold_Fact_PitStops')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Borrador: validar nombres de columnas contra capa_gold_parte1.sql antes de ejecutar. Source SQL silver.pit_stops; sink Gold.",
+				"folder": {
+					"name": "golden"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_pit_stops",
+								"type": "DatasetReference"
+							},
+							"name": "sourcePitStops"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_Gold_Fact_PitStops",
+								"type": "DatasetReference"
+							},
+							"name": "sinkGoldPitStops"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          race_sk as integer,",
+						"          date_sk as integer,",
+						"          driver_sk as integer,",
+						"          constructor_sk as integer,",
+						"          circuit_sk as integer,",
+						"          stop_number as short,",
+						"          lap_number as short,",
+						"          stop_time as string,",
+						"          duration_ms as integer,",
+						"          duration_seconds as decimal(10,3)",
+						"     ),",
+						"     allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT dr.race_sk, dd.date_sk, dv.driver_sk, dc.constructor_sk, ci.circuit_sk, TRY_CONVERT(smallint,p.[stop]) AS stop_number, TRY_CONVERT(smallint,p.lap) AS lap_number, CONVERT(varchar(20),p.[time]) AS stop_time, TRY_CONVERT(int,p.milliseconds) AS duration_ms, CAST(TRY_CONVERT(decimal(15,3),p.milliseconds)/1000.0 AS decimal(10,3)) AS duration_seconds FROM silver.pit_stops p INNER JOIN gold.dim_race dr ON dr.race_id=TRY_CONVERT(int,p.raceId) INNER JOIN gold.dim_date dd ON dd.full_date=dr.race_date INNER JOIN gold.dim_driver dv ON dv.driver_id=TRY_CONVERT(int,p.driverId) INNER JOIN silver.results sr ON TRY_CONVERT(int,sr.raceId)=TRY_CONVERT(int,p.raceId) AND TRY_CONVERT(int,sr.driverId)=TRY_CONVERT(int,p.driverId) INNER JOIN gold.dim_constructor dc ON dc.constructor_id=TRY_CONVERT(int,sr.constructorId) INNER JOIN silver.races r ON TRY_CONVERT(int,r.raceId)=dr.race_id INNER JOIN gold.dim_circuit ci ON ci.circuit_id=TRY_CONVERT(int,r.circuitId) WHERE TRY_CONVERT(smallint,p.[stop]) IS NOT NULL AND TRY_CONVERT(smallint,p.lap) IS NOT NULL AND TRY_CONVERT(int,p.milliseconds)>0 AND NOT EXISTS (SELECT 1 FROM gold.fact_pit_stops f WHERE f.race_sk=dr.race_sk AND f.driver_sk=dv.driver_sk AND f.stop_number=TRY_CONVERT(smallint,p.[stop]))',",
+						"     format: 'query') ~> sourcePitStops",
+						"sourcePitStops sink(allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     input(",
+						"          pit_stop_sk as long,",
+						"          race_sk as integer,",
+						"          date_sk as integer,",
+						"          driver_sk as integer,",
+						"          constructor_sk as integer,",
+						"          circuit_sk as integer,",
+						"          stop_number as integer,",
+						"          lap_number as integer,",
+						"          duration_ms as integer,",
+						"          duration_sec as decimal(8,3),",
+						"          {_loaded_at} as timestamp",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          race_sk,",
+						"          date_sk,",
+						"          driver_sk,",
+						"          constructor_sk,",
+						"          circuit_sk,",
+						"          stop_number,",
+						"          lap_number,",
+						"          duration_ms,",
+						"          duration_sec = duration_seconds",
+						"     )) ~> sinkGoldPitStops"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Gold_Fact_Qualifying')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Mapping Data Flow para gold.fact_qualifying; revisar esquema y datasets antes de ejecutar.",
+				"folder": {
+					"name": "golden"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_qualifying",
+								"type": "DatasetReference"
+							},
+							"name": "sourceQualifying"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_Gold_Fact_Qualifying",
+								"type": "DatasetReference"
+							},
+							"name": "sinkGoldQualifying"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          qualify_id as integer,",
+						"          race_sk as integer,",
+						"          date_sk as integer,",
+						"          driver_sk as integer,",
+						"          constructor_sk as integer,",
+						"          circuit_sk as integer,",
+						"          car_number as short,",
+						"          qualifying_position as short,",
+						"          q1_ms as integer,",
+						"          q2_ms as integer,",
+						"          q3_ms as integer,",
+						"          best_qualifying_ms as integer,",
+						"          reached_q2 as short,",
+						"          reached_q3 as short,",
+						"          is_pole_position as short",
+						"     ),",
+						"     allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT TRY_CONVERT(int,q.qualifyId) AS qualify_id, dr.race_sk, dd.date_sk, dv.driver_sk, dc.constructor_sk, ci.circuit_sk, TRY_CONVERT(smallint, NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(20),q.[number]))),\\'\\\\N\\'),\\'\\')) AS car_number, TRY_CONVERT(smallint,q.[position]) AS qualifying_position, t.q1_ms, t.q2_ms, t.q3_ms, (SELECT MIN(v) FROM (VALUES(t.q1_ms),(t.q2_ms),(t.q3_ms)) AS times(v)) AS best_qualifying_ms, CAST(CASE WHEN t.q2_ms IS NOT NULL THEN 1 ELSE 0 END AS tinyint) AS reached_q2, CAST(CASE WHEN t.q3_ms IS NOT NULL THEN 1 ELSE 0 END AS tinyint) AS reached_q3, CAST(CASE WHEN TRY_CONVERT(smallint,q.[position])=1 THEN 1 ELSE 0 END AS tinyint) AS is_pole_position FROM silver.qualifying q INNER JOIN gold.dim_race dr ON dr.race_id=TRY_CONVERT(int,q.raceId) INNER JOIN gold.dim_date dd ON dd.full_date=dr.race_date INNER JOIN gold.dim_driver dv ON dv.driver_id=TRY_CONVERT(int,q.driverId) INNER JOIN gold.dim_constructor dc ON dc.constructor_id=TRY_CONVERT(int,q.constructorId) INNER JOIN silver.races r ON TRY_CONVERT(int,r.raceId)=dr.race_id INNER JOIN gold.dim_circuit ci ON ci.circuit_id=TRY_CONVERT(int,r.circuitId) CROSS APPLY (SELECT CASE WHEN TRY_CONVERT(time(3), CONCAT(\\'00:\\', NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(40), q.[q1]))), \\'\\\\N\\'), \\'\\'))) IS NOT NULL THEN DATEDIFF(millisecond, CAST(\\'00:00:00.000\\' AS time(3)), TRY_CONVERT(time(3), CONCAT(\\'00:\\', NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(40), q.[q1]))), \\'\\\\N\\'), \\'\\')))) END AS q1_ms, CASE WHEN TRY_CONVERT(time(3), CONCAT(\\'00:\\', NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(40), q.[q2]))), \\'\\\\N\\'), \\'\\'))) IS NOT NULL THEN DATEDIFF(millisecond, CAST(\\'00:00:00.000\\' AS time(3)), TRY_CONVERT(time(3), CONCAT(\\'00:\\', NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(40), q.[q2]))), \\'\\\\N\\'), \\'\\')))) END AS q2_ms, CASE WHEN TRY_CONVERT(time(3), CONCAT(\\'00:\\', NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(40), q.[q3]))), \\'\\\\N\\'), \\'\\'))) IS NOT NULL THEN DATEDIFF(millisecond, CAST(\\'00:00:00.000\\' AS time(3)), TRY_CONVERT(time(3), CONCAT(\\'00:\\', NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(40), q.[q3]))), \\'\\\\N\\'), \\'\\')))) END AS q3_ms) t WHERE TRY_CONVERT(int,q.qualifyId) IS NOT NULL AND TRY_CONVERT(smallint,q.[position])>=1 AND NOT EXISTS (SELECT 1 FROM gold.fact_qualifying f WHERE f.qualify_id=TRY_CONVERT(int,q.qualifyId))',",
+						"     format: 'query') ~> sourceQualifying",
+						"sourceQualifying sink(allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     input(",
+						"          qualifying_sk as long,",
+						"          qualify_id as integer,",
+						"          race_sk as integer,",
+						"          date_sk as integer,",
+						"          driver_sk as integer,",
+						"          constructor_sk as integer,",
+						"          circuit_sk as integer,",
+						"          car_number as integer,",
+						"          qualifying_position as integer,",
+						"          q1_ms as integer,",
+						"          q2_ms as integer,",
+						"          q3_ms as integer,",
+						"          best_qualifying_ms as integer,",
+						"          reached_q2 as integer,",
+						"          reached_q3 as integer,",
+						"          is_pole_position as integer,",
+						"          {_loaded_at} as timestamp",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          qualify_id,",
+						"          race_sk,",
+						"          date_sk,",
+						"          driver_sk,",
+						"          constructor_sk,",
+						"          circuit_sk,",
+						"          car_number,",
+						"          qualifying_position,",
+						"          q1_ms,",
+						"          q2_ms,",
+						"          q3_ms,",
+						"          best_qualifying_ms,",
+						"          reached_q2,",
+						"          reached_q3,",
+						"          is_pole_position",
+						"     )) ~> sinkGoldQualifying"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Gold_Fact_SprintResults')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Silver sprint_results a Gold. Requiere dimensiones Gold cargadas. SQL source y sink con mapeo explicito; no inserta IDENTITY ni _loaded_at.",
+				"folder": {
+					"name": "golden"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_sprint_results",
+								"type": "DatasetReference"
+							},
+							"name": "sourceSprintResults"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_Gold_Fact_SprintResults",
+								"type": "DatasetReference"
+							},
+							"name": "sinkGoldSprintResults"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          sprint_result_id as integer,",
+						"          race_sk as integer,",
+						"          date_sk as integer,",
+						"          driver_sk as integer,",
+						"          constructor_sk as integer,",
+						"          circuit_sk as integer,",
+						"          status_sk as integer,",
+						"          grid_position as short,",
+						"          final_position as short,",
+						"          position_order as short,",
+						"          points as decimal(6,2),",
+						"          laps_completed as short,",
+						"          sprint_time_ms as long,",
+						"          fastest_lap_ms as integer,",
+						"          is_sprint_win as short,",
+						"          is_dnf as short,",
+						"          positions_gained as short",
+						"     ),",
+						"     allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT TRY_CONVERT(int,s.resultId) AS sprint_result_id, dr.race_sk, dd.date_sk, dv.driver_sk, dc.constructor_sk, ci.circuit_sk, ds.status_sk, TRY_CONVERT(smallint,s.grid) AS grid_position, TRY_CONVERT(smallint,NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(30),s.position))), \\'\\\\N\\'), \\'\\')) AS final_position, TRY_CONVERT(smallint,s.positionOrder) AS position_order, TRY_CONVERT(decimal(6,2),s.points) AS points, TRY_CONVERT(smallint,s.laps) AS laps_completed, TRY_CONVERT(bigint,NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(50),s.milliseconds))), \\'\\\\N\\'), \\'\\')) AS sprint_time_ms, CASE WHEN TRY_CONVERT(time(3), CONCAT(\\'00:\\', NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(50),s.fastestLapTime))), \\'\\\\N\\'), \\'\\'))) IS NOT NULL THEN DATEDIFF(millisecond,CAST(\\'00:00:00.000\\' AS time(3)),TRY_CONVERT(time(3),CONCAT(\\'00:\\',NULLIF(NULLIF(LTRIM(RTRIM(CONVERT(varchar(50),s.fastestLapTime))), \\'\\\\N\\'), \\'\\')))) END AS fastest_lap_ms, CAST(CASE WHEN TRY_CONVERT(int,s.positionOrder)=1 THEN 1 ELSE 0 END AS tinyint) AS is_sprint_win, CAST(CASE WHEN ds.is_finished_flag=1 THEN 0 ELSE 1 END AS tinyint) AS is_dnf, CASE WHEN TRY_CONVERT(smallint,s.grid)>0 THEN CAST(TRY_CONVERT(smallint,s.grid)-TRY_CONVERT(smallint,s.positionOrder) AS smallint) END AS positions_gained FROM silver.sprint_results s INNER JOIN gold.dim_race dr ON dr.race_id=TRY_CONVERT(int,s.raceId) INNER JOIN gold.dim_date dd ON dd.full_date=dr.race_date INNER JOIN gold.dim_driver dv ON dv.driver_id=TRY_CONVERT(int,s.driverId) INNER JOIN gold.dim_constructor dc ON dc.constructor_id=TRY_CONVERT(int,s.constructorId) INNER JOIN silver.races r ON TRY_CONVERT(int,r.raceId)=dr.race_id INNER JOIN gold.dim_circuit ci ON ci.circuit_id=TRY_CONVERT(int,r.circuitId) INNER JOIN gold.dim_status ds ON ds.status_id=TRY_CONVERT(int,s.statusId) WHERE TRY_CONVERT(int,s.resultId) IS NOT NULL AND TRY_CONVERT(smallint,s.grid) IS NOT NULL AND TRY_CONVERT(smallint,s.positionOrder) IS NOT NULL AND TRY_CONVERT(decimal(6,2),s.points)>=0 AND TRY_CONVERT(smallint,s.laps) IS NOT NULL AND NOT EXISTS (SELECT 1 FROM gold.fact_sprint_results f WHERE f.sprint_result_id=TRY_CONVERT(int,s.resultId))',",
+						"     format: 'query') ~> sourceSprintResults",
+						"sourceSprintResults sink(allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     input(",
+						"          sprint_result_sk as long,",
+						"          sprint_result_id as integer,",
+						"          race_sk as integer,",
+						"          date_sk as integer,",
+						"          driver_sk as integer,",
+						"          constructor_sk as integer,",
+						"          circuit_sk as integer,",
+						"          status_sk as integer,",
+						"          grid_position as integer,",
+						"          final_position as integer,",
+						"          position_order as integer,",
+						"          points as decimal(6,2),",
+						"          laps_completed as integer,",
+						"          sprint_time_ms as long,",
+						"          fastest_lap_ms as integer,",
+						"          is_sprint_win as integer,",
+						"          is_dnf as integer,",
+						"          positions_gained as integer,",
+						"          {_loaded_at} as timestamp",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          sprint_result_id,",
+						"          race_sk,",
+						"          date_sk,",
+						"          driver_sk,",
+						"          constructor_sk,",
+						"          circuit_sk,",
+						"          status_sk,",
+						"          grid_position,",
+						"          final_position,",
+						"          position_order,",
+						"          points,",
+						"          laps_completed,",
+						"          sprint_time_ms,",
+						"          fastest_lap_ms,",
+						"          is_sprint_win,",
+						"          is_dnf,",
+						"          positions_gained",
+						"     )) ~> sinkGoldSprintResults"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Gold_Fact_LapTimes')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "BORRADOR: verificar nombres de columnas con gold.fact_lap_times antes de ejecutar el Sink. Carga silver.lap_times con claves Gold.",
+				"folder": {
+					"name": "golden"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_lap_times",
+								"type": "DatasetReference"
+							},
+							"name": "sourceLapTimes"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_Gold_Fact_LapTimes",
+								"type": "DatasetReference"
+							},
+							"name": "sinkGoldLapTimes"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          race_sk as integer,",
+						"          date_sk as integer,",
+						"          driver_sk as integer,",
+						"          constructor_sk as integer,",
+						"          circuit_sk as integer,",
+						"          lap_number as short,",
+						"          lap_position as short,",
+						"          lap_time_ms as integer,",
+						"          lap_time_seconds as decimal(10,3)",
+						"     ),",
+						"     allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT dr.race_sk, dd.date_sk, dv.driver_sk, dc.constructor_sk, ci.circuit_sk, TRY_CONVERT(smallint,l.lap) AS lap_number, TRY_CONVERT(smallint,l.[position]) AS lap_position, TRY_CONVERT(int,l.milliseconds) AS lap_time_ms, CAST(TRY_CONVERT(decimal(15,3),l.milliseconds)/1000.0 AS decimal(10,3)) AS lap_time_seconds FROM silver.lap_times l INNER JOIN gold.dim_race dr ON dr.race_id=TRY_CONVERT(int,l.raceId) INNER JOIN gold.dim_date dd ON dd.full_date=dr.race_date INNER JOIN gold.dim_driver dv ON dv.driver_id=TRY_CONVERT(int,l.driverId) INNER JOIN silver.results sr ON TRY_CONVERT(int,sr.raceId)=TRY_CONVERT(int,l.raceId) AND TRY_CONVERT(int,sr.driverId)=TRY_CONVERT(int,l.driverId) INNER JOIN gold.dim_constructor dc ON dc.constructor_id=TRY_CONVERT(int,sr.constructorId) INNER JOIN silver.races r ON TRY_CONVERT(int,r.raceId)=dr.race_id INNER JOIN gold.dim_circuit ci ON ci.circuit_id=TRY_CONVERT(int,r.circuitId) WHERE TRY_CONVERT(smallint,l.lap)>0 AND TRY_CONVERT(int,l.milliseconds)>0 AND NOT EXISTS (SELECT 1 FROM gold.fact_lap_times f WHERE f.race_sk=dr.race_sk AND f.driver_sk=dv.driver_sk AND f.lap_number=TRY_CONVERT(smallint,l.lap))',",
+						"     format: 'query') ~> sourceLapTimes",
+						"sourceLapTimes sink(allowSchemaDrift: false,",
+						"     validateSchema: false,",
+						"     input(",
+						"          lap_time_sk as long,",
+						"          race_sk as integer,",
+						"          date_sk as integer,",
+						"          driver_sk as integer,",
+						"          constructor_sk as integer,",
+						"          circuit_sk as integer,",
+						"          lap_number as integer,",
+						"          lap_position as integer,",
+						"          lap_time_ms as integer,",
+						"          lap_time_sec as decimal(8,3),",
+						"          {_loaded_at} as timestamp",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          race_sk,",
+						"          date_sk,",
+						"          driver_sk,",
+						"          constructor_sk,",
+						"          circuit_sk,",
+						"          lap_number,",
+						"          lap_position,",
+						"          lap_time_ms,",
+						"          lap_time_sec = lap_time_seconds",
+						"     )) ~> sinkGoldLapTimes"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Pipeline_bronze')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "circuits",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_bronze_circuits",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "constructor_results",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "circuits",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_bronze_constructor_results",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "constructor_standing",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "constructor_results",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_bronze_constructor_standings",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "constructors",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "constructor_standing",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_bronze_constructors",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "driver_standings",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "constructors",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_bronze_driver_standings",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "drivers",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "driver_standings",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_bronze_drivers",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "lap_times",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "drivers",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_bronze_lap_times",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "pit_stops",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "lap_times",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_bronze_pit_stops",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "qualifying",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "pit_stops",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_bronze_qualifying",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "races",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "qualifying",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_bronze_races",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "results",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "races",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_bronze_results",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "seasons",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "results",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_bronze_seasons",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "sprint_results",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "seasons",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_bronze_sprint_results",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "status",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "sprint_results",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_bronze_status",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Pipeline_silver')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Seasons",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_seasons",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Circuits",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Seasons",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_circuits",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Constructors",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Circuits",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_constructors",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Drivers",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Constructors",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_drivers",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Status",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Drivers",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_status",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Races",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Status",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_races",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Constructor_results",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Races",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_constructor_results",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Constructor_standings",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Constructor_results",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_constructor_standings",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Driver_standings",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Constructor_standings",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_driver_standings",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Results",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Driver_standings",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_results",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Qualifying",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Results",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_qualifying",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Sprint_results",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Qualifying",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_sprint_results",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Lap_times",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Sprint_results",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_lap_times",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Pit_stops",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Lap_times",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_pit_stops",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/df_silver_seasons')]",
+				"[concat(variables('factoryId'), '/dataflows/df_silver_status')]",
+				"[concat(variables('factoryId'), '/dataflows/df_silver_sprint_results')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Date",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Gold_Dim_Date",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourceRaces": {},
+									"sinkGoldDate": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "race",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Date",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Gold_Dim_Race",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourceRaces": {},
+									"sinkGoldRace": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "driver",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "race",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Gold_Dim_Driver",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourceDrivers": {},
+									"sinkGoldDriver": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "constructor",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "driver",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Gold_Dim_Constructor",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourceConstructors": {},
+									"sinkGoldConstructor": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "circuit",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "constructor",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Gold_Dim_Circuit",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourceCircuits": {},
+									"sinkGoldCircuit": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "status",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "circuit",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Gold_Dim_Status",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourceStatus": {},
+									"sinkGoldStatus": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "RaceResults",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "status",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Gold_Fact_RaceResults",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourceRaceResults": {},
+									"sinkGoldRaceResults": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "PitStops",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "RaceResults",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Gold_Fact_PitStops",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourcePitStops": {},
+									"sinkGoldPitStops": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Qualifying",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "PitStops",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Gold_Fact_Qualifying",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourceQualifying": {},
+									"sinkGoldQualifying": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "SprintResults",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Qualifying",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Gold_Fact_SprintResults",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourceSprintResults": {},
+									"sinkGoldSprintResults": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "LapTimes",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "SprintResults",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Gold_Fact_LapTimes",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourceLapTimes": {},
+									"sinkGoldLapTimes": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DF_Gold_Dim_Date')]",
+				"[concat(variables('factoryId'), '/dataflows/DF_Gold_Dim_Race')]",
+				"[concat(variables('factoryId'), '/dataflows/DF_Gold_Dim_Driver')]",
+				"[concat(variables('factoryId'), '/dataflows/DF_Gold_Dim_Constructor')]",
+				"[concat(variables('factoryId'), '/dataflows/DF_Gold_Dim_Circuit')]",
+				"[concat(variables('factoryId'), '/dataflows/DF_Gold_Dim_Status')]",
+				"[concat(variables('factoryId'), '/dataflows/DF_Gold_Fact_RaceResults')]",
+				"[concat(variables('factoryId'), '/dataflows/DF_Gold_Fact_PitStops')]",
+				"[concat(variables('factoryId'), '/dataflows/DF_Gold_Fact_Qualifying')]",
+				"[concat(variables('factoryId'), '/dataflows/DF_Gold_Fact_SprintResults')]",
+				"[concat(variables('factoryId'), '/dataflows/DF_Gold_Fact_LapTimes')]"
+			]
+		}
+	]
+}

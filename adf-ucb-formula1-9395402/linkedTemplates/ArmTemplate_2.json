@@ -1,0 +1,1488 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nombre de instancia de Data Factory",
+			"defaultValue": "adf-ucb-formula1-9395402"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_silver_results')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "silver"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "resultId",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "raceId",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "driverId",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "constructorId",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "number",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "grid",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "position",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "positionText",
+						"type": "varchar"
+					},
+					{
+						"name": "positionOrder",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "points",
+						"type": "decimal",
+						"precision": 8,
+						"scale": 2
+					},
+					{
+						"name": "laps",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "time",
+						"type": "varchar"
+					},
+					{
+						"name": "milliseconds",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "fastestLap",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "rank",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "fastestLapTime",
+						"type": "varchar"
+					},
+					{
+						"name": "fastestLapSpeed",
+						"type": "decimal",
+						"precision": 8,
+						"scale": 3
+					},
+					{
+						"name": "statusId",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "silver",
+					"table": "results"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_silver_seasons')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "silver"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "url",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "silver",
+					"table": "seasons"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_silver_sprint_results')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "silver"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "resultId",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "raceId",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "driverId",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "constructorId",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "number",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "grid",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "position",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "positionText",
+						"type": "varchar"
+					},
+					{
+						"name": "positionOrder",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "points",
+						"type": "decimal",
+						"precision": 8,
+						"scale": 2
+					},
+					{
+						"name": "laps",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "time",
+						"type": "varchar"
+					},
+					{
+						"name": "milliseconds",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "fastestLap",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "fastestLapTime",
+						"type": "varchar"
+					},
+					{
+						"name": "statusId",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "silver",
+					"table": "sprint_results"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_silver_status')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "silver"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "statusId",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "status",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "silver",
+					"table": "status"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_Gold_Dim_Date')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "golden"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "date_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "full_date",
+						"type": "date"
+					},
+					{
+						"name": "year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "decade",
+						"type": "varchar"
+					},
+					{
+						"name": "quarter",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "month",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "month_name",
+						"type": "varchar"
+					},
+					{
+						"name": "day_of_week",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "gold",
+					"table": "dim_date"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_Gold_Dim_Race')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "golden"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "race_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "race_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "season_year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "round_number",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "race_name",
+						"type": "varchar"
+					},
+					{
+						"name": "race_date",
+						"type": "date"
+					},
+					{
+						"name": "race_time_utc",
+						"type": "time",
+						"scale": 0
+					}
+				],
+				"typeProperties": {
+					"schema": "gold",
+					"table": "dim_race"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_Gold_Dim_Driver')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "golden"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "driver_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "driver_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "driver_ref",
+						"type": "varchar"
+					},
+					{
+						"name": "permanent_number",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "driver_code",
+						"type": "char"
+					},
+					{
+						"name": "forename",
+						"type": "varchar"
+					},
+					{
+						"name": "surname",
+						"type": "varchar"
+					},
+					{
+						"name": "full_name",
+						"type": "varchar"
+					},
+					{
+						"name": "dob",
+						"type": "date"
+					},
+					{
+						"name": "nationality",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "gold",
+					"table": "dim_driver"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_Gold_Dim_Constructor')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "golden"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "constructor_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "constructor_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "constructor_ref",
+						"type": "varchar"
+					},
+					{
+						"name": "constructor_name",
+						"type": "varchar"
+					},
+					{
+						"name": "nationality",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "gold",
+					"table": "dim_constructor"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_Gold_Dim_Circuit')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "golden"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "circuit_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "circuit_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "circuit_ref",
+						"type": "varchar"
+					},
+					{
+						"name": "circuit_name",
+						"type": "varchar"
+					},
+					{
+						"name": "location",
+						"type": "varchar"
+					},
+					{
+						"name": "country",
+						"type": "varchar"
+					},
+					{
+						"name": "latitude",
+						"type": "decimal",
+						"precision": 9,
+						"scale": 6
+					},
+					{
+						"name": "longitude",
+						"type": "decimal",
+						"precision": 9,
+						"scale": 6
+					},
+					{
+						"name": "altitude_m",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "gold",
+					"table": "dim_circuit"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_Gold_Dim_Status')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "golden"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "status_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "status_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "status_description",
+						"type": "varchar"
+					},
+					{
+						"name": "status_category",
+						"type": "varchar"
+					},
+					{
+						"name": "is_finished_flag",
+						"type": "bit"
+					}
+				],
+				"typeProperties": {
+					"schema": "gold",
+					"table": "dim_status"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_Gold_Fact_RaceResults')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "golden"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "result_sk",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "result_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "race_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "date_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "driver_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "constructor_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "circuit_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "status_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "grid_position",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "final_position",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "position_order",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "points",
+						"type": "decimal",
+						"precision": 6,
+						"scale": 2
+					},
+					{
+						"name": "laps_completed",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "race_time_ms",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "fastest_lap_ms",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "fastest_lap_speed_kph",
+						"type": "decimal",
+						"precision": 6,
+						"scale": 3
+					},
+					{
+						"name": "is_win",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "is_podium",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "is_dnf",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "positions_gained",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "driver_age_at_race",
+						"type": "decimal",
+						"precision": 4,
+						"scale": 1
+					},
+					{
+						"name": "_loaded_at",
+						"type": "datetime2",
+						"scale": 0
+					}
+				],
+				"typeProperties": {
+					"schema": "gold",
+					"table": "fact_race_results"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_Gold_Fact_PitStops')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "golden"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "pit_stop_sk",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "race_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "date_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "driver_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "constructor_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "circuit_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "stop_number",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "lap_number",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "duration_ms",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "duration_sec",
+						"type": "decimal",
+						"precision": 8,
+						"scale": 3
+					},
+					{
+						"name": "_loaded_at",
+						"type": "datetime2",
+						"scale": 0
+					}
+				],
+				"typeProperties": {
+					"schema": "gold",
+					"table": "fact_pit_stops"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_Gold_Fact_Qualifying')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "golden"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "qualifying_sk",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "qualify_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "race_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "date_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "driver_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "constructor_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "circuit_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "car_number",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "qualifying_position",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "q1_ms",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "q2_ms",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "q3_ms",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "best_qualifying_ms",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "reached_q2",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "reached_q3",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "is_pole_position",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "_loaded_at",
+						"type": "datetime2",
+						"scale": 0
+					}
+				],
+				"typeProperties": {
+					"schema": "gold",
+					"table": "fact_qualifying"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_Gold_Fact_SprintResults')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "golden"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "sprint_result_sk",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "sprint_result_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "race_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "date_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "driver_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "constructor_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "circuit_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "status_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "grid_position",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "final_position",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "position_order",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "points",
+						"type": "decimal",
+						"precision": 6,
+						"scale": 2
+					},
+					{
+						"name": "laps_completed",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "sprint_time_ms",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "fastest_lap_ms",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "is_sprint_win",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "is_dnf",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "positions_gained",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "_loaded_at",
+						"type": "datetime2",
+						"scale": 0
+					}
+				],
+				"typeProperties": {
+					"schema": "gold",
+					"table": "fact_sprint_results"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_Gold_Fact_LapTimes')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "golden"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "lap_time_sk",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "race_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "date_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "driver_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "constructor_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "circuit_sk",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "lap_number",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "lap_position",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "lap_time_ms",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "lap_time_sec",
+						"type": "decimal",
+						"precision": 8,
+						"scale": 3
+					},
+					{
+						"name": "_loaded_at",
+						"type": "datetime2",
+						"scale": 0
+					}
+				],
+				"typeProperties": {
+					"schema": "gold",
+					"table": "fact_lap_times"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_bronze_circuits')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "bronze"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_raw_circuits",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_circuits",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          circuitId as string,",
+						"          circuitRef as string,",
+						"          name as string,",
+						"          location as string,",
+						"          country as string,",
+						"          lat as string,",
+						"          lng as string,",
+						"          alt as string,",
+						"          url as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          circuitId as string,",
+						"          circuitRef as string,",
+						"          name as string,",
+						"          location as string,",
+						"          country as string,",
+						"          lat as string,",
+						"          lng as string,",
+						"          alt as string,",
+						"          url as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          circuitId,",
+						"          circuitRef,",
+						"          name,",
+						"          location,",
+						"          country,",
+						"          lat,",
+						"          lng,",
+						"          alt,",
+						"          url",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_bronze_constructor_results')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "bronze"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_raw_constructor_results",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_constructor_results",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          constructorResultsId as string,",
+						"          raceId as string,",
+						"          constructorId as string,",
+						"          points as string,",
+						"          status as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          constructorResultsId as string,",
+						"          raceId as string,",
+						"          constructorId as string,",
+						"          points as string,",
+						"          status as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_bronze_constructor_standings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "bronze"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_raw_constructor_standings",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_constructor_standings",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          constructorStandingsId as string,",
+						"          raceId as string,",
+						"          constructorId as string,",
+						"          points as string,",
+						"          position as string,",
+						"          positionText as string,",
+						"          wins as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          constructorStandingsId as string,",
+						"          raceId as string,",
+						"          constructorId as string,",
+						"          points as string,",
+						"          position as string,",
+						"          positionText as string,",
+						"          wins as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_bronze_constructors')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "bronze"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_raw_constructors",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_constructors",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          constructorId as string,",
+						"          constructorRef as string,",
+						"          name as string,",
+						"          nationality as string,",
+						"          url as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          constructorId as string,",
+						"          constructorRef as string,",
+						"          name as string,",
+						"          nationality as string,",
+						"          url as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_bronze_driver_standings')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "bronze"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_raw_driver_standings",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_driver_standings",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          driverStandingsId as string,",
+						"          raceId as string,",
+						"          driverId as string,",
+						"          points as string,",
+						"          position as string,",
+						"          positionText as string,",
+						"          wins as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          driverStandingsId as string,",
+						"          raceId as string,",
+						"          driverId as string,",
+						"          points as string,",
+						"          position as string,",
+						"          positionText as string,",
+						"          wins as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
