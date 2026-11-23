@@ -1,0 +1,73 @@
+{
+	"name": "DF_Gold_Dim_Race",
+	"properties": {
+		"description": "Carga dim_race desde silver.races con SQL Source. Verificar columnas raceId, year, round, name, date, time y nombre del dataset Silver. race_sk es IDENTITY y no se envía.",
+		"folder": {
+			"name": "golden"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_races",
+						"type": "DatasetReference"
+					},
+					"name": "sourceRaces"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_Gold_Dim_Race",
+						"type": "DatasetReference"
+					},
+					"name": "sinkGoldRace"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          race_id as integer,",
+				"          season_year as short,",
+				"          round_number as short,",
+				"          race_name as string,",
+				"          race_date as date,",
+				"          race_time_utc as string",
+				"     ),",
+				"     allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT TRY_CONVERT(int, r.raceId) AS race_id, TRY_CONVERT(smallint, r.[year]) AS season_year, TRY_CONVERT(tinyint, r.[round]) AS round_number, LEFT(LTRIM(RTRIM(r.[name])), 120) AS race_name, TRY_CONVERT(date, r.[date]) AS race_date, TRY_CONVERT(time(0), NULLIF(CAST(r.[time] AS varchar(50)), \\'\\\\N\\')) AS race_time_utc FROM silver.races r WHERE TRY_CONVERT(int, r.raceId) IS NOT NULL AND TRY_CONVERT(smallint, r.[year]) IS NOT NULL AND TRY_CONVERT(tinyint, r.[round]) IS NOT NULL AND NULLIF(LTRIM(RTRIM(r.[name])), \\'\\') IS NOT NULL AND TRY_CONVERT(date, r.[date]) IS NOT NULL AND NOT EXISTS (SELECT 1 FROM gold.dim_race g WHERE g.race_id = TRY_CONVERT(int, r.raceId))',",
+				"     format: 'query') ~> sourceRaces",
+				"sourceRaces sink(allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     input(",
+				"          race_sk as integer,",
+				"          race_id as integer,",
+				"          season_year as integer,",
+				"          round_number as integer,",
+				"          race_name as string,",
+				"          race_date as date,",
+				"          race_time_utc as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          race_id,",
+				"          season_year,",
+				"          round_number,",
+				"          race_name,",
+				"          race_date,",
+				"          race_time_utc",
+				"     )) ~> sinkGoldRace"
+			]
+		}
+	}
+}

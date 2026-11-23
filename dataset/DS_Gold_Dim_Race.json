@@ -1,0 +1,53 @@
+{
+	"name": "DS_Gold_Dim_Race",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "golden"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "race_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "race_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "season_year",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "round_number",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "race_name",
+				"type": "varchar"
+			},
+			{
+				"name": "race_date",
+				"type": "date"
+			},
+			{
+				"name": "race_time_utc",
+				"type": "time",
+				"scale": 0
+			}
+		],
+		"typeProperties": {
+			"schema": "gold",
+			"table": "dim_race"
+		}
+	}
+}

@@ -1,0 +1,76 @@
+{
+	"name": "DS_Gold_Fact_LapTimes",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "golden"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "lap_time_sk",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "race_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "date_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "driver_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "constructor_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "circuit_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "lap_number",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "lap_position",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "lap_time_ms",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "lap_time_sec",
+				"type": "decimal",
+				"precision": 8,
+				"scale": 3
+			},
+			{
+				"name": "_loaded_at",
+				"type": "datetime2",
+				"scale": 0
+			}
+		],
+		"typeProperties": {
+			"schema": "gold",
+			"table": "fact_lap_times"
+		}
+	}
+}

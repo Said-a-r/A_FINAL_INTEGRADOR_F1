@@ -1,0 +1,56 @@
+{
+	"name": "DS_Gold_Dim_Date",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "golden"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "date_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "full_date",
+				"type": "date"
+			},
+			{
+				"name": "year",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "decade",
+				"type": "varchar"
+			},
+			{
+				"name": "quarter",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "month",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "month_name",
+				"type": "varchar"
+			},
+			{
+				"name": "day_of_week",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "gold",
+			"table": "dim_date"
+		}
+	}
+}

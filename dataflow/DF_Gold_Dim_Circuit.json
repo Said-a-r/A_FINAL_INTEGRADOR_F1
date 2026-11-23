@@ -1,0 +1,79 @@
+{
+	"name": "DF_Gold_Dim_Circuit",
+	"properties": {
+		"description": "Carga circuitos desde silver.circuits a gold.dim_circuit. Mantiene latitud y longitud para Tableau. Validar nombres de columnas y datasets en ADF.",
+		"folder": {
+			"name": "golden"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_circuits",
+						"type": "DatasetReference"
+					},
+					"name": "sourceCircuits"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_Gold_Dim_Circuit",
+						"type": "DatasetReference"
+					},
+					"name": "sinkGoldCircuit"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          circuit_id as integer,",
+				"          circuit_ref as string,",
+				"          circuit_name as string,",
+				"          location as string,",
+				"          country as string,",
+				"          latitude as decimal(9,6),",
+				"          longitude as decimal(9,6),",
+				"          altitude_m as integer",
+				"     ),",
+				"     allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT TRY_CONVERT(int,c.circuitId) AS circuit_id, LEFT(COALESCE(NULLIF(NULLIF(LTRIM(RTRIM(c.circuitRef)), \\'\\\\N\\'), \\'\\'), \\'Unknown\\'),60) AS circuit_ref, LEFT(LTRIM(RTRIM(c.[name])),120) AS circuit_name, LEFT(COALESCE(NULLIF(NULLIF(LTRIM(RTRIM(c.[location])), \\'\\\\N\\'), \\'\\'), \\'Unknown\\'),80) AS [location], LEFT(COALESCE(NULLIF(NULLIF(LTRIM(RTRIM(c.country)), \\'\\\\N\\'), \\'\\'), \\'Unknown\\'),60) AS country, TRY_CONVERT(decimal(9,6),NULLIF(NULLIF(CAST(c.lat AS varchar(40)), \\'\\\\N\\'),\\'\\')) AS latitude, TRY_CONVERT(decimal(9,6),NULLIF(NULLIF(CAST(c.lng AS varchar(40)), \\'\\\\N\\'),\\'\\')) AS longitude, TRY_CONVERT(int,NULLIF(NULLIF(CAST(c.alt AS varchar(40)), \\'\\\\N\\'),\\'\\')) AS altitude_m FROM silver.circuits c WHERE TRY_CONVERT(int,c.circuitId) IS NOT NULL AND NULLIF(LTRIM(RTRIM(c.[name])), \\'\\') IS NOT NULL AND NOT EXISTS (SELECT 1 FROM gold.dim_circuit g WHERE g.circuit_id=TRY_CONVERT(int,c.circuitId))',",
+				"     format: 'query') ~> sourceCircuits",
+				"sourceCircuits sink(allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     input(",
+				"          circuit_sk as integer,",
+				"          circuit_id as integer,",
+				"          circuit_ref as string,",
+				"          circuit_name as string,",
+				"          location as string,",
+				"          country as string,",
+				"          latitude as decimal(9,6),",
+				"          longitude as decimal(9,6),",
+				"          altitude_m as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          circuit_id,",
+				"          circuit_ref,",
+				"          circuit_name,",
+				"          location,",
+				"          country,",
+				"          latitude,",
+				"          longitude,",
+				"          altitude_m",
+				"     )) ~> sinkGoldCircuit"
+			]
+		}
+	}
+}

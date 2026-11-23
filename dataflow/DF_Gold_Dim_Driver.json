@@ -1,0 +1,82 @@
+{
+	"name": "DF_Gold_Dim_Driver",
+	"properties": {
+		"description": "Carga inicial de pilotos desde silver.drivers a gold.dim_driver. Supone nombres originales de columnas Ergast en Silver. driver_sk es IDENTITY. Validar Source y Sink en ADF.",
+		"folder": {
+			"name": "golden"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_drivers",
+						"type": "DatasetReference"
+					},
+					"name": "sourceDrivers"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_Gold_Dim_Driver",
+						"type": "DatasetReference"
+					},
+					"name": "sinkGoldDriver"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          driver_id as integer,",
+				"          driver_ref as string,",
+				"          permanent_number as short,",
+				"          driver_code as string,",
+				"          forename as string,",
+				"          surname as string,",
+				"          full_name as string,",
+				"          dob as date,",
+				"          nationality as string",
+				"     ),",
+				"     allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT TRY_CONVERT(int, d.driverId) AS driver_id, LEFT(LTRIM(RTRIM(COALESCE(NULLIF(d.driverRef, \\'\\\\N\\'), \\'Unknown\\'))), 60) AS driver_ref, TRY_CONVERT(smallint, NULLIF(NULLIF(CAST(d.[number] AS varchar(30)), \\'\\\\N\\'), \\'\\')) AS permanent_number, LEFT(NULLIF(NULLIF(LTRIM(RTRIM(d.code)), \\'\\\\N\\'), \\'\\'), 3) AS driver_code, LEFT(LTRIM(RTRIM(d.forename)), 60) AS forename, LEFT(LTRIM(RTRIM(d.surname)), 60) AS surname, LEFT(CONCAT(LTRIM(RTRIM(d.forename)), \\' \\', LTRIM(RTRIM(d.surname))), 125) AS full_name, TRY_CONVERT(date, NULLIF(NULLIF(CAST(d.dob AS varchar(30)), \\'\\\\N\\'), \\'\\')) AS dob, LEFT(COALESCE(NULLIF(NULLIF(LTRIM(RTRIM(d.nationality)), \\'\\\\N\\'), \\'\\'), \\'Unknown\\'), 60) AS nationality FROM silver.drivers d WHERE TRY_CONVERT(int, d.driverId) IS NOT NULL AND NULLIF(LTRIM(RTRIM(d.forename)), \\'\\') IS NOT NULL AND NULLIF(LTRIM(RTRIM(d.surname)), \\'\\') IS NOT NULL AND NOT EXISTS (SELECT 1 FROM gold.dim_driver g WHERE g.driver_id = TRY_CONVERT(int, d.driverId))',",
+				"     format: 'query') ~> sourceDrivers",
+				"sourceDrivers sink(allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     input(",
+				"          driver_sk as integer,",
+				"          driver_id as integer,",
+				"          driver_ref as string,",
+				"          permanent_number as integer,",
+				"          driver_code as string,",
+				"          forename as string,",
+				"          surname as string,",
+				"          full_name as string,",
+				"          dob as date,",
+				"          nationality as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          driver_id,",
+				"          driver_ref,",
+				"          permanent_number,",
+				"          driver_code,",
+				"          forename,",
+				"          surname,",
+				"          full_name,",
+				"          dob,",
+				"          nationality",
+				"     )) ~> sinkGoldDriver"
+			]
+		}
+	}
+}

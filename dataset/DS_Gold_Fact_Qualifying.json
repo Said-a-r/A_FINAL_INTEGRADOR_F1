@@ -1,0 +1,105 @@
+{
+	"name": "DS_Gold_Fact_Qualifying",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "golden"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "qualifying_sk",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "qualify_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "race_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "date_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "driver_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "constructor_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "circuit_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "car_number",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "qualifying_position",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "q1_ms",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "q2_ms",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "q3_ms",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "best_qualifying_ms",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "reached_q2",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "reached_q3",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "is_pole_position",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "_loaded_at",
+				"type": "datetime2",
+				"scale": 0
+			}
+		],
+		"typeProperties": {
+			"schema": "gold",
+			"table": "fact_qualifying"
+		}
+	}
+}

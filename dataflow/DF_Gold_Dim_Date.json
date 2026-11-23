@@ -1,0 +1,78 @@
+{
+	"name": "DF_Gold_Dim_Date",
+	"properties": {
+		"description": "Carga fechas de silver.races hacia gold.dim_date. Ajustar referencia del dataset Silver al nombre real en ADF.",
+		"folder": {
+			"name": "golden"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_races",
+						"type": "DatasetReference"
+					},
+					"name": "sourceRaces"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_Gold_Dim_Date",
+						"type": "DatasetReference"
+					},
+					"name": "sinkGoldDate"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          date_sk as integer,",
+				"          full_date as date,",
+				"          year as short,",
+				"          decade as string,",
+				"          quarter as short,",
+				"          month as short,",
+				"          month_name as string,",
+				"          day_of_week as string",
+				"     ),",
+				"     allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT DISTINCT CAST(YEAR(d.full_date) * 10000 + MONTH(d.full_date) * 100 + DAY(d.full_date) AS int) AS date_sk, d.full_date, CAST(YEAR(d.full_date) AS smallint) AS [year], CONCAT((YEAR(d.full_date) / 10) * 10, \\'s\\') AS decade, CAST(DATEPART(QUARTER, d.full_date) AS tinyint) AS [quarter], CAST(MONTH(d.full_date) AS tinyint) AS [month], CHOOSE(MONTH(d.full_date), \\'Enero\\',\\'Febrero\\',\\'Marzo\\',\\'Abril\\',\\'Mayo\\',\\'Junio\\',\\'Julio\\',\\'Agosto\\',\\'Septiembre\\',\\'Octubre\\',\\'Noviembre\\',\\'Diciembre\\') AS month_name, CHOOSE((DATEDIFF(DAY, \\'19000101\\', d.full_date) % 7 + 7) % 7 + 1, \\'Lunes\\',\\'Martes\\',\\'Miercoles\\',\\'Jueves\\',\\'Viernes\\',\\'Sabado\\',\\'Domingo\\') AS day_of_week FROM (SELECT TRY_CONVERT(date, [date]) AS full_date FROM silver.races) d WHERE d.full_date IS NOT NULL AND NOT EXISTS (SELECT 1 FROM gold.dim_date existing WHERE existing.full_date = d.full_date)',",
+				"     format: 'query') ~> sourceRaces",
+				"sourceRaces sink(allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     input(",
+				"          date_sk as integer,",
+				"          full_date as date,",
+				"          year as integer,",
+				"          decade as string,",
+				"          quarter as integer,",
+				"          month as integer,",
+				"          month_name as string,",
+				"          day_of_week as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          date_sk,",
+				"          full_date,",
+				"          year,",
+				"          decade,",
+				"          quarter,",
+				"          month,",
+				"          month_name,",
+				"          day_of_week",
+				"     )) ~> sinkGoldDate"
+			]
+		}
+	}
+}

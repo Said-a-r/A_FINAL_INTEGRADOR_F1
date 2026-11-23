@@ -1,0 +1,67 @@
+{
+	"name": "DF_Gold_Dim_Status",
+	"properties": {
+		"description": "Carga estados de resultados de silver.status a gold.dim_status. Clasificacion heuristica de estados para Tableau; validar categorias en vista previa.",
+		"folder": {
+			"name": "golden"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_status",
+						"type": "DatasetReference"
+					},
+					"name": "sourceStatus"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_Gold_Dim_Status",
+						"type": "DatasetReference"
+					},
+					"name": "sinkGoldStatus"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          status_id as integer,",
+				"          status_description as string,",
+				"          status_category as string,",
+				"          is_finished_flag as boolean",
+				"     ),",
+				"     allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT TRY_CONVERT(int, s.statusId) AS status_id, LEFT(LTRIM(RTRIM(s.[status])), 80) AS status_description, CASE WHEN LOWER(LTRIM(RTRIM(s.[status]))) = \\'finished\\' OR LTRIM(RTRIM(s.[status])) LIKE \\'+% Lap%\\' THEN \\'Finished\\' WHEN LOWER(s.[status]) LIKE \\'%accident%\\' OR LOWER(s.[status]) LIKE \\'%collision%\\' OR LOWER(s.[status]) LIKE \\'%spun off%\\' THEN \\'Accident\\' WHEN LOWER(s.[status]) LIKE \\'%engine%\\' OR LOWER(s.[status]) LIKE \\'%gearbox%\\' OR LOWER(s.[status]) LIKE \\'%transmission%\\' OR LOWER(s.[status]) LIKE \\'%hydraulic%\\' OR LOWER(s.[status]) LIKE \\'%electrical%\\' OR LOWER(s.[status]) LIKE \\'%brake%\\' OR LOWER(s.[status]) LIKE \\'%suspension%\\' OR LOWER(s.[status]) LIKE \\'%clutch%\\' OR LOWER(s.[status]) LIKE \\'%overheat%\\' OR LOWER(s.[status]) LIKE \\'%mechanical%\\' OR LOWER(s.[status]) LIKE \\'%turbo%\\' OR LOWER(s.[status]) LIKE \\'%oil%\\' OR LOWER(s.[status]) LIKE \\'%fuel%\\' THEN \\'Mechanical\\' ELSE \\'Other\\' END AS status_category, CAST(CASE WHEN LOWER(LTRIM(RTRIM(s.[status]))) = \\'finished\\' OR LTRIM(RTRIM(s.[status])) LIKE \\'+% Lap%\\' THEN 1 ELSE 0 END AS bit) AS is_finished_flag FROM silver.status s WHERE TRY_CONVERT(int, s.statusId) IS NOT NULL AND NULLIF(LTRIM(RTRIM(s.[status])), \\'\\') IS NOT NULL AND NOT EXISTS (SELECT 1 FROM gold.dim_status g WHERE g.status_id = TRY_CONVERT(int, s.statusId))',",
+				"     format: 'query') ~> sourceStatus",
+				"sourceStatus sink(allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     input(",
+				"          status_sk as integer,",
+				"          status_id as integer,",
+				"          status_description as string,",
+				"          status_category as string,",
+				"          is_finished_flag as boolean",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          status_id,",
+				"          status_description,",
+				"          status_category,",
+				"          is_finished_flag",
+				"     )) ~> sinkGoldStatus"
+			]
+		}
+	}
+}

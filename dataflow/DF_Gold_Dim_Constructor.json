@@ -1,0 +1,67 @@
+{
+	"name": "DF_Gold_Dim_Constructor",
+	"properties": {
+		"description": "Carga constructores Silver a Gold. Usa Source SQL; constructor_sk es IDENTITY. Verificar nombres de columnas Silver y referencias de datasets.",
+		"folder": {
+			"name": "golden"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_constructors",
+						"type": "DatasetReference"
+					},
+					"name": "sourceConstructors"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_Gold_Dim_Constructor",
+						"type": "DatasetReference"
+					},
+					"name": "sinkGoldConstructor"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          constructor_id as integer,",
+				"          constructor_ref as string,",
+				"          constructor_name as string,",
+				"          nationality as string",
+				"     ),",
+				"     allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT TRY_CONVERT(int, c.constructorId) AS constructor_id, LEFT(COALESCE(NULLIF(NULLIF(LTRIM(RTRIM(c.constructorRef)), \\'\\\\N\\'), \\'\\'), \\'Unknown\\'), 60) AS constructor_ref, LEFT(LTRIM(RTRIM(c.[name])), 100) AS constructor_name, LEFT(COALESCE(NULLIF(NULLIF(LTRIM(RTRIM(c.nationality)), \\'\\\\N\\'), \\'\\'), \\'Unknown\\'), 60) AS nationality FROM silver.constructors c WHERE TRY_CONVERT(int, c.constructorId) IS NOT NULL AND NULLIF(LTRIM(RTRIM(c.[name])), \\'\\') IS NOT NULL AND NOT EXISTS (SELECT 1 FROM gold.dim_constructor g WHERE g.constructor_id = TRY_CONVERT(int, c.constructorId))',",
+				"     format: 'query') ~> sourceConstructors",
+				"sourceConstructors sink(allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     input(",
+				"          constructor_sk as integer,",
+				"          constructor_id as integer,",
+				"          constructor_ref as string,",
+				"          constructor_name as string,",
+				"          nationality as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          constructor_id,",
+				"          constructor_ref,",
+				"          constructor_name,",
+				"          nationality",
+				"     )) ~> sinkGoldConstructor"
+			]
+		}
+	}
+}

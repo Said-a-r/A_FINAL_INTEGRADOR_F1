@@ -1,0 +1,42 @@
+{
+	"name": "DS_Gold_Dim_Constructor",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "golden"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "constructor_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "constructor_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "constructor_ref",
+				"type": "varchar"
+			},
+			{
+				"name": "constructor_name",
+				"type": "varchar"
+			},
+			{
+				"name": "nationality",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "gold",
+			"table": "dim_constructor"
+		}
+	}
+}
